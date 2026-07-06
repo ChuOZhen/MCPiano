@@ -34,34 +34,7 @@
 
  ---
 
- ## 🧱 推荐目录结构
-
-
-├── README.md               # 项目简介
-├── LICENSE
-├── .gitignore
-├── firmware/               # 数字钢琴 MicroPython 源代码
-│   ├── main.py
-│   ├── buzzer.py
-│   ├── buttons.py
-│   ├── leds.py
-│   └── piano.py
-├── toolchain/              # AI 原生开发工具链源代码
-│   ├── mcp_server.py
-│   ├── tools/
-│   │   ├── file_transfer.py
-│   │   ├── serial_monitor.py
-│   │   ├── executor.py
-│   │   └── error_handler.py
-│   └── README.md
-├── hardware/               # 硬件工程文档
-│   ├── schematic.pdf
-│   ├── pcb.pdf
-│   └── bom_analysis.md
-├── docs/                   # 补充技术文档
-├── tests/                  # 外设测试程序
-├── images/
-└── report/                 # 最终报告源文件
+🧱目录结构
 
 
  ---
