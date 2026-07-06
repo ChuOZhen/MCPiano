@@ -37,7 +37,6 @@
  ## 🧱 推荐目录结构
 
 
-MCPiano/
 ├── README.md               # 项目简介
 ├── LICENSE
 ├── .gitignore
