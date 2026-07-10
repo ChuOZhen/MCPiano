@@ -34,10 +34,33 @@
 
  ---
 
-目录结构
+## 目录结构
 
+```
+~/MCPpiano/
+├── README.md
+├── .gitignore
+├── piano/                       # 数字钢琴固件（MicroPython）
+├── toolchain/                   # AI 原生工具链（Python）
+│   └── tools/
+├── hardware/                    # 硬件工程文档
+│   ├── schematic.pdf            # 原理图
+│   ├── pcb.pdf                  # PCB 版图
+│   ├── MCPiano_硬件资源分析.xlsx
+│   └── bom_analysis.md          # BOM 与硬件资源分析
+├── tests/                       # 外设测试脚本
+│   ├── test_button.py
+│   ├── test_buzzer.py
+│   └── test_led.py
+├── docs/                        # 技术文档
+│   ├── mini_claude_code_notes.md
+│   ├── toolchain_proposal.md
+│   └── 最新25级实验班暑假大作业要求.pdf
+├── images/                      # 演示截图、视频封面
+└── report/                      # 最终技术报告
+```
 
- ---
+---
 
  ##  开发环境
 
@@ -60,6 +83,52 @@
  | OpenCode + DeepSeek API | 开源 + 低成本 | 编写 OpenCode 工具扩展 |
 
  ---
+
+##  Week 1 完成情况（07/06 — 07/12）
+
+### 硬件分析与文档
+
+| 任务 | 产出文件 |
+|------|----------|
+| 解析原理图 / PCB / BOM | `hardware/schematic.pdf`<br>`hardware/pcb.pdf`<br>`hardware/MCPiano_硬件资源分析.xlsx` |
+| 编写硬件分析文档 | `hardware/bom_analysis.md` |
+
+### 环境搭建与固件烧录
+
+| 任务 | 状态 |
+|------|------|
+| 安装 Python 3.14 + pip | ✅ |
+| 创建 venv 虚拟环境 | ✅ `.venv/` |
+| 安装 esptool + pyserial | ✅ |
+| 下载 MicroPython 固件 | ✅ `ESP32_GENERIC-20240602-v1.23.0.bin` |
+| 擦除并烧录 Flash | ✅ ESP32-D0WD-V3 已确认 |
+| 验证 REPL | ✅ `>>>` 提示符正常 |
+
+### 外设测试与验证
+
+| 测试项 | 脚本 | VM 验证状态 |
+|--------|------|-------------|
+| 按键 KEY1 / KEY2 | `tests/test_button.py` | ✅ 通过 |
+| LED 绿 / 红 | `tests/test_led.py` | ⏳ 未跑（面包板接线后需补测） |
+| 蜂鸣器七音阶 | `tests/test_buzzer.py` | ✅ 通过 |
+
+### 工具链前期准备
+
+| 文档 | 路径 |
+|------|------|
+| mini-claude-code 阅读笔记 | `docs/mini_claude_code_notes.md` |
+| KimiCode MCP 扩展机制详解 | `docs/toolchain_proposal.md` |
+
+### 仓库初始化
+
+| 任务 | 状态 |
+|------|------|
+| 标准目录结构创建 | ✅ `piano/` `toolchain/` `tests/` `docs/` 等 |
+| Git 初始化 + 首次 commit | ✅ `180b9d7` |
+| `README.md` 创建 | ✅ 已提交 |
+| `.gitignore` 配置 | ✅ 排除 `.venv/` `*.bin` `本地文件/` |
+
+---
 
  ##  项目里程碑
 
