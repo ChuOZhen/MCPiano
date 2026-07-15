@@ -188,7 +188,7 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 | -------------------- | -------------------------- | ----------------------------- |
 | 按键 KEY1 / KEY2     | `tests/test_button.py`   | ✅ 通过                       |
 | LED 绿 / 红          | `tests/test_led.py`      | ⏳ 未跑（面包板接线后需补测） |
-| MAX98357A I2S 功放 | `tests/test_max98357a.py` | ⏳ 待硬件验证                 |
+| MAX98357A I2S 功放 | `tests/test_max98357a.py` | ✅ 通过                       |
 | ~~蜂鸣器七音阶~~   | `tests/test_buzzer.py`   | ~~✅ 通过~~（已废弃，PWM 方案） |
 
 ### 工具链前期准备
