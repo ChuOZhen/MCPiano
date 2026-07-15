@@ -76,11 +76,11 @@ def _generate_sine(freq, duration_ms, volume):
     return buf
 
 
-def _play_tone(audio, freq, duration_ms, volume=0.5):
+def _play_tone(audio, freq, duration_ms, volume=0.5, pause_ms=200):
     """播放单个音调，音符间留短暂静音。"""
     samples = _generate_sine(freq, duration_ms, volume)
     audio.write(samples)
-    time.sleep_ms(50)
+    time.sleep_ms(pause_ms)
 
 
 def test_basic_tone(audio):
@@ -111,13 +111,13 @@ def test_seven_scale(audio):
 
 
 def test_volume_range(audio):
-    """测试 3：音量变化 0.1 -> 0.9 -> 0.1，验证动态范围。"""
-    print("\n[测试 3] 音量变化 0.1 -> 0.9 -> 0.1")
-    volumes = [0.1, 0.9, 0.1]
+    """测试 3：音量从 0.1 到 0.9 多档变化，验证动态范围。"""
+    print("\n[测试 3] 音量动态范围：0.1 -> 0.3 -> 0.5 -> 0.7 -> 0.9")
+    volumes = [0.1, 0.3, 0.5, 0.7, 0.9]
     try:
         for vol in volumes:
             print(f"  🔊 volume={vol}")
-            _play_tone(audio, 262, 300, vol)
+            _play_tone(audio, 262, 400, vol, pause_ms=500)
         print("  ✅ 音量动态范围测试完成")
         return True
     except Exception as e:
@@ -153,8 +153,11 @@ def main():
         print("\nI2S 初始化成功")
 
         results['basic_tone'] = test_basic_tone(audio)
+        time.sleep_ms(1000)
         results['seven_scale'] = test_seven_scale(audio)
+        time.sleep_ms(1000)
         results['volume_range'] = test_volume_range(audio)
+        time.sleep_ms(1000)
         results['octave_switch'] = test_octave_switch(audio)
 
     except Exception as e:
