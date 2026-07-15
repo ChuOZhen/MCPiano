@@ -113,6 +113,9 @@ mpremote connect /dev/ttyACM0 run tests/test_led.py
 | 5V   | 5V 排针    | VIN  | 功放供电（必须 5V，不能接 3.3V） |
 | GND  | GND 排针   | GND  | 与 ESP32 共地 |
 | GAIN | GND 排针   | GAIN | 接 GND = 固定增益，抑制啸叫 |
+| SD_MODE | 5V 排针 | SD_MODE | **必须接 VIN，不能悬空；接 GND 会关闭功放** |
+
+> ⚠️ **SD_MODE 悬空会导致功放状态不稳定**，表现为大音量反而变小、间歇失声或底噪异常。
 
 ### 其他外设（保留）
 
