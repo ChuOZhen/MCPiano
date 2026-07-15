@@ -8,11 +8,14 @@
 
 ### 任务一：数字钢琴
 
- 利用 ESP32 开发板实现一台功能完整的数字钢琴：
+ 利用 ESP32 开发板实现一台功能完整的 9 键数字钢琴：
 
-- **按键输入**：板载按键（KEY1、KEY2）作为钢琴键输入
-- **音符生成**：通过 MAX98357A I2S 功放模块 + 喇叭，输出 16-bit 正弦波 PCM 音频（至少 7 个音阶）
-- **视觉反馈**：板载 LED 提供即时视觉反馈
+- **按键输入**：9 个面包板按键
+  - GPIO23/22/21/19/18/14/12 → do/re/mi/fa/sol/la/si（7 音阶）
+  - GPIO34 → 八度+
+  - GPIO35 → 八度-
+- **音符生成**：通过 MAX98357A I2S 功放模块 + 喇叭，输出 16-bit 正弦波 PCM 音频
+- **视觉反馈**：预留 LED 接口，本次因无 330Ω 限流电阻暂不启用
 - **系统稳定性**：上电自动进入工作状态，持续稳定响应
 
 ### 任务二：AI 原生开发工具链
@@ -39,7 +42,10 @@
 ├── README.md
 ├── .gitignore
 ├── piano/                       # 数字钢琴固件（MicroPython）
-│   └── i2s_audio.py             # MAX98357A I2S 功放驱动（16-bit 正弦波）
+│   ├── i2s_audio.py             # MAX98357A I2S 功放驱动（16-bit 正弦波）
+│   ├── buttons.py               # 9 键扫描（7 音阶 + 2 功能键）
+│   ├── piano.py                 # 钢琴状态机（音阶/八度/响应）
+│   └── main.py                  # 上电自动运行入口
 ├── toolchain/                   # AI 原生工具链（Python）
 │   └── tools/
 ├── hardware/                    # 硬件工程文档
@@ -92,7 +98,27 @@ mpremote connect /dev/ttyACM0 run tests/test_max98357a.py
 
 > 听到清晰正弦波七音阶即表示音频模块工作正常。
 
-### 3. 运行其他外设测试
+### 3. 运行钢琴系统综合测试
+
+```bash
+mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :
+mpremote connect /dev/ttyACM0 cp piano/buttons.py :
+mpremote connect /dev/ttyACM0 cp piano/piano.py :
+mpremote connect /dev/ttyACM0 run tests/test_piano_v1.py
+```
+
+> 按下按键能听到对应音阶，八度+/- 能切换音高。
+
+### 4. 直接运行钢琴主程序
+
+```bash
+mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :
+mpremote connect /dev/ttyACM0 cp piano/buttons.py :
+mpremote connect /dev/ttyACM0 cp piano/piano.py :
+mpremote connect /dev/ttyACM0 run piano/main.py
+```
+
+### 5. 运行其他外设测试
 
 ```bash
 mpremote connect /dev/ttyACM0 run tests/test_button.py
