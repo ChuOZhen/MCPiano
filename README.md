@@ -54,10 +54,12 @@
 │   ├── MCPiano_硬件资源分析.xlsx
 │   └── bom_analysis.md          # BOM 与硬件资源分析
 ├── tests/                       # 外设测试脚本
-│   ├── test_button.py           # 按键输入测试
+│   ├── test_button.py           # 原 2 键按键测试
 │   ├── test_buzzer.py           # 已废弃：原 GPIO25 PWM 蜂鸣器测试
 │   ├── test_led.py              # LED 指示灯测试
-│   └── test_max98357a.py        # MAX98357A I2S 功放测试
+│   ├── test_max98357a.py        # MAX98357A I2S 功放独立测试
+│   ├── test_buttons_9key.py     # 9 键手动按压检测
+│   └── test_piano_v1.py         # 9 键钢琴系统综合测试
 ├── docs/                        # 技术文档
 │   ├── mini_claude_code_notes.md
 │   ├── toolchain_proposal.md
@@ -213,8 +215,10 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 | 测试项               | 脚本                       | 验证状态                      |
 | -------------------- | -------------------------- | ----------------------------- |
 | 按键 KEY1 / KEY2     | `tests/test_button.py`   | ✅ 通过                       |
+| 9 键手动按压         | `tests/test_buttons_9key.py` | ✅ 通过                       |
 | LED 绿 / 红          | `tests/test_led.py`      | ⏳ 未跑（面包板接线后需补测） |
 | MAX98357A I2S 功放 | `tests/test_max98357a.py` | ✅ 通过                       |
+| 9 键钢琴系统         | `tests/test_piano_v1.py` | ⏳ 待硬件验证                 |
 | ~~蜂鸣器七音阶~~   | `tests/test_buzzer.py`   | ~~✅ 通过~~（已废弃，PWM 方案） |
 
 ### 工具链前期准备
@@ -232,6 +236,28 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 | Git 初始化 + 首次 commit | ✅`180b9d7`                                       |
 | `README.md` 创建       | ✅ 已提交                                           |
 | `.gitignore` 配置      | ✅ 排除`.venv/` `*.bin` `本地文件/`           |
+
+---
+
+## Week 2 进行中（07/13 — 07/19）
+
+### 数字钢琴核心 v1
+
+| 任务 | 产出文件 | 状态 |
+|:-----|:---------|:----:|
+| MAX98357A I2S 功放驱动 | `piano/i2s_audio.py` | ✅ 已验证 |
+| 9 键扫描模块 | `piano/buttons.py` | ✅ 已验证 |
+| 钢琴状态机（音阶/八度） | `piano/piano.py` | ✅ 已完成 |
+| 上电自动运行入口 | `piano/main.py` | ✅ 已完成 |
+| 功放独立测试 | `tests/test_max98357a.py` | ✅ 通过 |
+| 9 键手动检测 | `tests/test_buttons_9key.py` | ✅ 通过 |
+| 钢琴系统综合测试 | `tests/test_piano_v1.py` | ⏳ 待验证 |
+
+### 关键硬件接线（已确认）
+
+- **MAX98357A**：VIN→5V, GND→GND, SD_MODE→VIN, GAIN→VIN, BCLK→GPIO16, LRCK→GPIO17, DIN→GPIO25
+- **9 个按键**：GPIO23/22/21/19/18/14/12/34/35 → 按键 → GND
+- **LED**：本次暂不安装（无 330Ω 限流电阻）
 
 ---
 
