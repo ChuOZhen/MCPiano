@@ -9,7 +9,8 @@ i2s_audio.py - MAX98357A I2S 功放驱动模块
     LRCK (WS) -> GPIO17
     DIN -> GPIO25
 - 音频格式：16-bit 单声道，采样率 16 kHz
-- 供电：MAX98357A VIN 接开发板 5V，GND 与 ESP32 共地，GAIN 接 GND
+- 供电：MAX98357A VIN 接开发板 5V，GND 与 ESP32 共地
+- 控制：SD_MODE 接 VIN 使能，GAIN 接 VIN（本模块 GND=高增益、VIN=正常增益）
 
 注意：本模块只操作 I2S 相关 GPIO（16/17/25），不触碰 LED/按键 GPIO。
 """

@@ -112,9 +112,11 @@ mpremote connect /dev/ttyACM0 run tests/test_led.py
 | DIN  | **GPIO25** | DIN  | I2S 数据输入 |
 | 5V   | 5V 排针    | VIN  | 功放供电（必须 5V，不能接 3.3V） |
 | GND  | GND 排针   | GND  | 与 ESP32 共地 |
-| GAIN | GND 排针   | GAIN | 接 GND = 固定增益，抑制啸叫 |
+| GAIN | **5V 排针** | GAIN | **本模块接 VIN = 正常增益；接 GND 会变成高增益，导致小音量削顶** |
 | SD_MODE | 5V 排针 | SD_MODE | **必须接 VIN，不能悬空；接 GND 会关闭功放** |
 
+> ⚠️ **注意模块差异**：市面上 MAX98357A 模块的 GAIN 逻辑不统一。本项目的模块**GND=高增益、VIN=正常增益**，因此 GAIN 接 VIN。如果你的模块相反，表现为音量数字越大声音越小，请把 GAIN 改接 GND。
+>
 > ⚠️ **SD_MODE 悬空会导致功放状态不稳定**，表现为大音量反而变小、间歇失声或底噪异常。
 
 ### 其他外设（保留）

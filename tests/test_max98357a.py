@@ -10,7 +10,8 @@ test_max98357a.py - MAX98357A I2S 功放模块独立测试
     GPIO25 -> DIN
     5V -> VIN
     GND -> GND
-    GND -> GAIN（固定增益，抑制啸叫）
+    5V -> SD_MODE（使能功放，不可悬空）
+    5V -> GAIN（本模块 VIN=正常增益；GND=高增益）
 - 喇叭：红线接 MAX98357A OUT+，黑线接 OUT-
 
 运行方式：
