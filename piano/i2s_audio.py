@@ -66,8 +66,9 @@ class I2SAudio:
             )
         except Exception as e:
             raise RuntimeError(
-                f"I2S 初始化失败：BCLK=GPIO{bclk_gpio}, "
-                f"LRCK=GPIO{lrck_gpio}, DIN=GPIO{din_gpio}。错误：{e}"
+                "I2S 初始化失败：BCLK=GPIO{}, LRCK=GPIO{}, DIN=GPIO{}。错误：{}".format(
+                    bclk_gpio, lrck_gpio, din_gpio, e
+                )
             )
 
     def _generate_samples(self, freq, duration_ms, volume):
@@ -118,8 +119,9 @@ class I2SAudio:
             self._audio.write(samples)
         except Exception as e:
             raise RuntimeError(
-                f"播放音调失败：freq={freq}Hz, duration={duration_ms}ms, "
-                f"GPIO{self._din_gpio}(DIN) 输出错误：{e}"
+                "播放音调失败：freq={}Hz, duration={}ms, GPIO{}(DIN) 输出错误：{}".format(
+                    freq, duration_ms, self._din_gpio, e
+                )
             )
 
     def play_note(self, note_name, duration_ms=300):
