@@ -45,6 +45,8 @@
 ~/MCPpiano/
 ├── README.md
 ├── .gitignore
+├── .vscode/                     # VS Code 工作区配置
+│   └── settings.json            # MCP 服务器配置
 ├── piano/                       # 数字钢琴固件（MicroPython）
 │   ├── i2s_audio.py             # MAX98357A I2S 功放驱动（16-bit 正弦波）
 │   ├── buttons.py               # 9 键扫描（7 音阶 + 2 功能键）
@@ -52,6 +54,7 @@
 │   └── main.py                  # 上电自动运行入口
 ├── toolchain/                   # AI 原生工具链（Python）
 │   ├── mcp_server.py            # MCP 服务器骨架
+│   ├── test_server.py           # MCP 服务器手动测试脚本
 │   └── tools/                   # 硬件工具实现
 │       ├── serial_monitor.py    # 串口监控（W2 已实现）
 │       ├── file_transfer.py     # 文件传输（W3 占位）
@@ -153,9 +156,14 @@ pip install mcp pyserial
 
 ### 2. 测试 MCP 服务器
 
+项目已配置好工作区 MCP 服务器（`.vscode/settings.json`）。先用命令行验证：
+
 ```bash
 # 启动服务器（手动验证）
 PYTHONPATH=/home/chuzhen/MCPpiano/toolchain python toolchain/mcp_server.py
+
+# 或使用测试脚本验证 JSON-RPC 通信
+python toolchain/test_server.py
 ```
 
 ### 3. 测试串口监控工具
@@ -164,7 +172,15 @@ PYTHONPATH=/home/chuzhen/MCPpiano/toolchain python toolchain/mcp_server.py
 python tests/test_toolchain_serial.py
 ```
 
-### 4. 在 KimiCode 中配置
+### 4. 在 KimiCode 中直接使用
+
+工作区配置已写入 `.vscode/settings.json`。在 VS Code 中打开本项目后，KimiCode 会自动加载 `mcpiano-esp32` 服务器。
+
+如果未自动加载，手动在 VS Code 命令面板中：
+1. `MCP: Refresh Server`
+2. 或重启 VS Code
+
+配置内容：
 
 ```json
 {
