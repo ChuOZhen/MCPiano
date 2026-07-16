@@ -56,14 +56,16 @@
 │   └── bom_analysis.md          # BOM 与硬件资源分析
 ├── lib/                         # MicroPython 第三方驱动库
 │   └── ssd1306.py               # SSD1306 OLED I2C/SPI 驱动
+├── oled/                        # OLED 屏幕专项测试
+│   ├── scan_i2c.py              # I2C 总线扫描（排查接线/地址）
+│   └── test_ssd1306.py          # SSD1306 OLED 显示测试
 ├── tests/                       # 外设测试脚本
 │   ├── test_button.py           # 原 2 键按键测试
 │   ├── test_buzzer.py           # 已废弃：原 GPIO25 PWM 蜂鸣器测试
 │   ├── test_led.py              # LED 指示灯测试
 │   ├── test_max98357a.py        # MAX98357A I2S 功放独立测试
 │   ├── test_buttons_9key.py     # 9 键手动按压检测
-│   ├── test_piano_v1.py         # 9 键钢琴系统综合测试
-│   └── test_ssd1306.py          # SSD1306 OLED I2C 显示测试
+│   └── test_piano_v1.py         # 9 键钢琴系统综合测试
 ├── docs/                        # 技术文档
 │   ├── mini_claude_code_notes.md
 │   ├── toolchain_proposal.md
@@ -110,11 +112,16 @@ SSD1306 驱动未包含在当前 MicroPython 固件中，需先上传到设备 `
 
 ```bash
 mpremote connect /dev/ttyACM0 cp lib/ssd1306.py :lib/ssd1306.py
-mpremote connect /dev/ttyACM0 run tests/test_ssd1306.py
+mpremote connect /dev/ttyACM0 run oled/test_ssd1306.py
 ```
 
 > ESP32 MicroPython 默认 `sys.path` 包含 `/lib`，因此上传后 `import ssd1306` 即可找到。
 > OLED 依次显示 "MCPiano"、七音阶名、动态播放信息。
+>
+> 如果屏幕无响应，先用 `oled/scan_i2c.py` 扫描 I2C 总线：
+> ```bash
+> mpremote connect /dev/ttyACM0 run oled/scan_i2c.py
+> ```
 
 ### 4. 运行钢琴系统综合测试
 
