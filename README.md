@@ -51,7 +51,12 @@
 │   ├── piano.py                 # 钢琴状态机（音阶/八度/响应）
 │   └── main.py                  # 上电自动运行入口
 ├── toolchain/                   # AI 原生工具链（Python）
-│   └── tools/
+│   ├── mcp_server.py            # MCP 服务器骨架
+│   └── tools/                   # 硬件工具实现
+│       ├── serial_monitor.py    # 串口监控（W2 已实现）
+│       ├── file_transfer.py     # 文件传输（W3 占位）
+│       ├── executor.py          # 程序执行/复位（W3 占位）
+│       └── error_handler.py     # 错误报告（W3 占位）
 ├── hardware/                    # 硬件工程文档
 │   ├── schematic.pdf            # 原理图
 │   ├── pcb.pdf                  # PCB 版图
@@ -63,10 +68,12 @@
 │   ├── test_led.py              # LED 指示灯测试
 │   ├── test_max98357a.py        # MAX98357A I2S 功放独立测试
 │   ├── test_buttons_9key.py     # 9 键手动按压检测
-│   └── test_piano_v1.py         # 9 键钢琴系统综合测试
+│   ├── test_piano_v1.py         # 9 键钢琴系统综合测试
+│   └── test_toolchain_serial.py # 工具链串口监控测试
 ├── docs/                        # 技术文档
 │   ├── mini_claude_code_notes.md
 │   ├── toolchain_proposal.md
+│   ├── toolchain_architecture.md # 工具链架构设计文档
 │   └── 最新25级实验班暑假大作业要求.pdf
 ├── images/                      # 演示截图、视频封面
 └── report/                      # 最终技术报告
@@ -130,6 +137,48 @@ mpremote connect /dev/ttyACM0 run piano/main.py
 mpremote connect /dev/ttyACM0 run tests/test_button.py
 mpremote connect /dev/ttyACM0 run tests/test_led.py
 ```
+
+---
+
+## 工具链快速开始
+
+MCPiano 工具链是 AI 编程助手与 ESP32 硬件之间的桥梁，基于 MCP（Model Context Protocol）协议实现。当前已完成架构设计和第一个可工作的工具：串口监控。
+
+### 1. 安装 MCP SDK
+
+```bash
+source .venv/bin/activate
+pip install mcp pyserial
+```
+
+### 2. 测试 MCP 服务器
+
+```bash
+# 启动服务器（手动验证）
+PYTHONPATH=/home/chuzhen/MCPpiano/toolchain python toolchain/mcp_server.py
+```
+
+### 3. 测试串口监控工具
+
+```bash
+python tests/test_toolchain_serial.py
+```
+
+### 4. 在 KimiCode 中配置
+
+```json
+{
+  "mcpServers": {
+    "mcpiano-esp32": {
+      "command": "/home/chuzhen/MCPpiano/.venv/bin/python",
+      "args": ["/home/chuzhen/MCPpiano/toolchain/mcp_server.py"],
+      "env": {"PYTHONPATH": "/home/chuzhen/MCPpiano/toolchain"}
+    }
+  }
+}
+```
+
+更多细节见 `docs/toolchain_architecture.md` 和 `docs/toolchain_proposal.md`。
 
 ---
 
@@ -258,6 +307,16 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 | 功放独立测试            | `tests/test_max98357a.py`    |  ✅ 通过  |
 | 9 键手动检测            | `tests/test_buttons_9key.py` |  ✅ 通过  |
 | 钢琴系统综合测试        | `tests/test_piano_v1.py`     | ⏳ 待验证 |
+
+### 工具链架构与首个工具
+
+| 任务                         | 产出文件                                |   状态   |
+| :--------------------------- | :-------------------------------------- | :-------: |
+| 工具链架构设计文档           | `docs/toolchain_architecture.md`      | ✅ 已完成 |
+| MCP 服务器骨架               | `toolchain/mcp_server.py`             | ✅ 已完成 |
+| 串口监控工具                 | `toolchain/tools/serial_monitor.py`   | ✅ 已实现 |
+| 文件传输/执行/复位/错误占位  | `toolchain/tools/*.py`                | ⏳ W3 实现 |
+| 工具链串口测试               | `tests/test_toolchain_serial.py`      | ⏳ 待验证 |
 
 ### 关键硬件接线（已确认）
 
