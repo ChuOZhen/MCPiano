@@ -1,6 +1,9 @@
 
 # MCPiano — AI 原生嵌入式数字钢琴 & 开发工具链
 
+> **硬件变更说明**：SSD1306 OLED 显示屏因硬件故障（I2C 无响应）已从项目中移除。
+> 当前显示方案：无。如需状态指示，使用 GPIO32/33 LED（待安装 330Ω 限流电阻）。
+
 ---
 
 ## 项目概述
@@ -16,7 +19,7 @@
   - GPIO34 → 八度+
   - GPIO35 → 八度-
 - **音符生成**：通过 MAX98357A I2S 功放模块 + 喇叭，输出 16-bit 正弦波 PCM 音频
-- **视觉反馈**：预留 LED 接口，本次因无 330Ω 限流电阻暂不启用；OLED 显示当前音符（可选，GPIO5/13 I2C）
+- **视觉反馈**：预留 LED 接口，本次因无 330Ω 限流电阻暂不启用
 - **系统稳定性**：上电自动进入工作状态，持续稳定响应
 
 ### 任务二：AI 原生开发工具链
@@ -54,11 +57,6 @@
 │   ├── pcb.pdf                  # PCB 版图
 │   ├── MCPiano_硬件资源分析.xlsx
 │   └── bom_analysis.md          # BOM 与硬件资源分析
-├── lib/                         # MicroPython 第三方驱动库
-│   └── ssd1306.py               # SSD1306 OLED I2C/SPI 驱动
-├── oled/                        # OLED 屏幕专项测试
-│   ├── scan_i2c.py              # I2C 总线扫描（排查接线/地址）
-│   └── test_ssd1306.py          # SSD1306 OLED 显示测试
 ├── tests/                       # 外设测试脚本
 │   ├── test_button.py           # 原 2 键按键测试
 │   ├── test_buzzer.py           # 已废弃：原 GPIO25 PWM 蜂鸣器测试
@@ -106,24 +104,7 @@ mpremote connect /dev/ttyACM0 run tests/test_max98357a.py
 
 > 听到清晰正弦波七音阶即表示音频模块工作正常。
 
-### 3. 运行 OLED 显示测试
-
-SSD1306 驱动未包含在当前 MicroPython 固件中，需先上传到设备 `/lib/` 目录：
-
-```bash
-mpremote connect /dev/ttyACM0 cp lib/ssd1306.py :lib/ssd1306.py
-mpremote connect /dev/ttyACM0 run oled/test_ssd1306.py
-```
-
-> ESP32 MicroPython 默认 `sys.path` 包含 `/lib`，因此上传后 `import ssd1306` 即可找到。
-> OLED 依次显示 "MCPiano"、七音阶名、动态播放信息。
->
-> 如果屏幕无响应，先用 `oled/scan_i2c.py` 扫描 I2C 总线：
-> ```bash
-> mpremote connect /dev/ttyACM0 run oled/scan_i2c.py
-> ```
-
-### 4. 运行钢琴系统综合测试
+### 3. 运行钢琴系统综合测试
 
 ```bash
 mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :
@@ -134,7 +115,7 @@ mpremote connect /dev/ttyACM0 run tests/test_piano_v1.py
 
 > 按下按键能听到对应音阶，八度+/- 能切换音高。
 
-### 5. 直接运行钢琴主程序
+### 4. 直接运行钢琴主程序
 
 ```bash
 mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :
@@ -143,7 +124,7 @@ mpremote connect /dev/ttyACM0 cp piano/piano.py :
 mpremote connect /dev/ttyACM0 run piano/main.py
 ```
 
-### 6. 运行其他外设测试
+### 5. 运行其他外设测试
 
 ```bash
 mpremote connect /dev/ttyACM0 run tests/test_button.py
@@ -170,15 +151,6 @@ mpremote connect /dev/ttyACM0 run tests/test_led.py
 >
 > ⚠️ **SD_MODE 悬空会导致功放状态不稳定**，表现为大音量反而变小、间歇失声或底噪异常。
 
-### SSD1306 OLED 接线
-
-| SSD1306 OLED | VCC | GND | SCL | SDA |
-|:-------------|:----|:----|:----|:----|
-| 接 ESP32 | 3.3V/5V | GND | GPIO5 | GPIO13 |
-
-> 默认 I2C 地址为 `0x3C`；若花屏或不显示，可尝试 `addr=0x3D`。
->
-> 如果模块没有内置上拉电阻，需要在 SCL 和 SDA 上各接一个 **4.7kΩ 电阻到 3.3V**，否则 I2C 总线无法正常工作。
 
 ### 其他外设（保留）
 
