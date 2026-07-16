@@ -33,13 +33,36 @@ TEST_DELAY_S = 1.5
 def init_oled():
     """Initialize SoftI2C and SSD1306 OLED.
 
+    Scans the I2C bus first, then tries the common SSD1306 addresses
+    ``0x3C`` and ``0x3D``.
+
     Returns:
-        tuple: (oled, i2c) where ``oled`` is the SSD1306 instance and
-        ``i2c`` is the SoftI2C bus instance.
+        tuple: (oled, i2c, addr) where ``oled`` is the SSD1306 instance,
+        ``i2c`` is the SoftI2C bus instance, and ``addr`` is the used
+        I2C address.
+
+    Raises:
+        OSError: if no SSD1306 device responds on the I2C bus.
     """
     i2c = SoftI2C(scl=Pin(SCL_PIN), sda=Pin(SDA_PIN), freq=I2C_FREQ)
-    oled = ssd1306.SSD1306_I2C(OLED_WIDTH, OLED_HEIGHT, i2c)
-    return oled, i2c
+    scan = i2c.scan()
+    print(f"I2C scan found devices: {[hex(a) for a in scan]}")
+
+    candidates = [0x3C, 0x3D]
+    for addr in candidates:
+        if addr in scan:
+            try:
+                oled = ssd1306.SSD1306_I2C(
+                    OLED_WIDTH, OLED_HEIGHT, i2c, addr=addr
+                )
+                return oled, i2c, addr
+            except OSError:
+                continue
+
+    raise OSError(
+        "SSD1306 not found at 0x3C or 0x3D; "
+        "check wiring (SCL=GPIO2, SDA=GPIO4) and power."
+    )
 
 
 def test_show_title(oled):
@@ -84,9 +107,10 @@ def run_tests():
     """
     oled = None
     i2c = None
+    addr = None
     try:
-        oled, i2c = init_oled()
-        print("OLED initialized on I2C addr 0x3C")
+        oled, i2c, addr = init_oled()
+        print(f"OLED initialized on I2C addr {hex(addr)}")
 
         tests = [
             ("Title: MCPiano", test_show_title),
@@ -103,8 +127,7 @@ def run_tests():
         print("All OLED tests completed.")
     except OSError as exc:
         print(f"OLED init failed: {exc}")
-        print("Check wiring (SCL=GPIO2, SDA=GPIO4) and I2C address.")
-        print("Some modules use addr=0x3D instead of default 0x3C.")
+        print("Check wiring (SCL=GPIO2, SDA=GPIO4), power, and I2C address.")
     finally:
         if oled is not None:
             oled.fill(0)
