@@ -1,13 +1,25 @@
 """
 SSD1306 OLED display test for MCPiano.
 
-Uses the MicroPython built-in ``ssd1306`` driver over SoftI2C on GPIO2 (SCL)
-and GPIO4 (SDA).  The OLED module is powered from the 5V rail.
+Uses the bundled ``ssd1306`` driver over SoftI2C on GPIO2 (SCL) and GPIO4
+(SDA).  The OLED module is powered from the 5V rail.
+
+If the board reports ``ImportError: no module named 'ssd1306'``, copy
+``lib/ssd1306.py`` to the device first::
+
+    mpremote connect /dev/ttyACM0 cp lib/ssd1306.py :lib/ssd1306.py
 """
 
 import time
 from machine import Pin, SoftI2C
-import ssd1306
+
+try:
+    import ssd1306
+except ImportError as exc:
+    print("ERROR: ssd1306 driver not found on the board.")
+    print("Copy lib/ssd1306.py to the device:")
+    print("  mpremote connect /dev/ttyACM0 cp lib/ssd1306.py :lib/ssd1306.py")
+    raise exc
 
 
 OLED_WIDTH = 128

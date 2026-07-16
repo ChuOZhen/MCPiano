@@ -1,3 +1,4 @@
+
 # MCPiano — AI 原生嵌入式数字钢琴 & 开发工具链
 
 ---
@@ -53,6 +54,8 @@
 │   ├── pcb.pdf                  # PCB 版图
 │   ├── MCPiano_硬件资源分析.xlsx
 │   └── bom_analysis.md          # BOM 与硬件资源分析
+├── lib/                         # MicroPython 第三方驱动库
+│   └── ssd1306.py               # SSD1306 OLED I2C/SPI 驱动
 ├── tests/                       # 外设测试脚本
 │   ├── test_button.py           # 原 2 键按键测试
 │   ├── test_buzzer.py           # 已废弃：原 GPIO25 PWM 蜂鸣器测试
@@ -103,10 +106,14 @@ mpremote connect /dev/ttyACM0 run tests/test_max98357a.py
 
 ### 3. 运行 OLED 显示测试
 
+SSD1306 驱动未包含在当前 MicroPython 固件中，需先上传到设备 `/lib/` 目录：
+
 ```bash
+mpremote connect /dev/ttyACM0 cp lib/ssd1306.py :lib/ssd1306.py
 mpremote connect /dev/ttyACM0 run tests/test_ssd1306.py
 ```
 
+> ESP32 MicroPython 默认 `sys.path` 包含 `/lib`，因此上传后 `import ssd1306` 即可找到。
 > OLED 依次显示 "MCPiano"、七音阶名、动态播放信息。
 
 ### 4. 运行钢琴系统综合测试
@@ -142,15 +149,15 @@ mpremote connect /dev/ttyACM0 run tests/test_led.py
 
 ### MAX98357A I2S 功放接线
 
-| 信号 | ESP32 GPIO | MAX98357A 引脚 | 说明 |
-|:-----|:----------:|:--------------|:-----|
-| BCLK | **GPIO16** | BCLK | I2S 位时钟 |
-| LRCK | **GPIO17** | LRCK | I2S 帧时钟（WS） |
-| DIN  | **GPIO25** | DIN  | I2S 数据输入 |
-| 5V   | 5V 排针    | VIN  | 功放供电（必须 5V，不能接 3.3V） |
-| GND  | GND 排针   | GND  | 与 ESP32 共地 |
-| GAIN | **5V 排针** | GAIN | **本模块接 VIN = 正常增益；接 GND 会变成高增益，导致小音量削顶** |
-| SD_MODE | 5V 排针 | SD_MODE | **必须接 VIN，不能悬空；接 GND 会关闭功放** |
+| 信号    |    ESP32 GPIO    | MAX98357A 引脚 | 说明                                                                   |
+| :------ | :---------------: | :------------- | :--------------------------------------------------------------------- |
+| BCLK    | **GPIO16** | BCLK           | I2S 位时钟                                                             |
+| LRCK    | **GPIO17** | LRCK           | I2S 帧时钟（WS）                                                       |
+| DIN     | **GPIO25** | DIN            | I2S 数据输入                                                           |
+| 5V      |      5V 排针      | VIN            | 功放供电（必须 5V，不能接 3.3V）                                       |
+| GND     |     GND 排针     | GND            | 与 ESP32 共地                                                          |
+| GAIN    | **5V 排针** | GAIN           | **本模块接 VIN = 正常增益；接 GND 会变成高增益，导致小音量削顶** |
+| SD_MODE |      5V 排针      | SD_MODE        | **必须接 VIN，不能悬空；接 GND 会关闭功放**                      |
 
 > ⚠️ **注意模块差异**：市面上 MAX98357A 模块的 GAIN 逻辑不统一。本项目的模块**GND=高增益、VIN=正常增益**，因此 GAIN 接 VIN。如果你的模块相反，表现为音量数字越大声音越小，请把 GAIN 改接 GND。
 >
@@ -168,12 +175,12 @@ mpremote connect /dev/ttyACM0 run tests/test_led.py
 
 ### 其他外设（保留）
 
-| 外设 | GPIO | 方向 | 电平特性 |
-|:-----|:----:|:----:|:---------|
-| KEY1 | 34 | 输入 | 内部上拉，按下 = 低电平 |
-| KEY2 | 35 | 输入 | 内部上拉，按下 = 低电平 |
-| LED2 绿 | 32 | 输出 | 低电平有效，0 = 亮 |
-| LED3 红 | 33 | 输出 | 低电平有效，0 = 亮 |
+| 外设    | GPIO | 方向 | 电平特性                |
+| :------ | :--: | :--: | :---------------------- |
+| KEY1    |  34  | 输入 | 内部上拉，按下 = 低电平 |
+| KEY2    |  35  | 输入 | 内部上拉，按下 = 低电平 |
+| LED2 绿 |  32  | 输出 | 低电平有效，0 = 亮      |
+| LED3 红 |  33  | 输出 | 低电平有效，0 = 亮      |
 
 > ⚠️ GPIO6–11 被 SPI Flash 占用，不可用。
 
@@ -183,15 +190,16 @@ mpremote connect /dev/ttyACM0 run tests/test_led.py
 
 Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + 喇叭**。
 
-| 对比项 | PWM 蜂鸣器 | MAX98357A I2S 功放 |
-|:-------|:-----------|:-------------------|
-| 信号类型 | 方波 | 16-bit PCM 正弦波 |
-| 音质 | 谐波丰富、刺耳 | 平滑、音准干净 |
-| 驱动方式 | GPIO25 PWM | I2S 总线（GPIO16/17/25）|
-| 外设 | 压电蜂鸣器 | 小喇叭 |
-| 扩展性 | 仅单音 | 支持复杂波形、多采样率 |
+| 对比项   | PWM 蜂鸣器     | MAX98357A I2S 功放       |
+| :------- | :------------- | :----------------------- |
+| 信号类型 | 方波           | 16-bit PCM 正弦波        |
+| 音质     | 谐波丰富、刺耳 | 平滑、音准干净           |
+| 驱动方式 | GPIO25 PWM     | I2S 总线（GPIO16/17/25） |
+| 外设     | 压电蜂鸣器     | 小喇叭                   |
+| 扩展性   | 仅单音         | 支持复杂波形、多采样率   |
 
 **为什么升级？**
+
 - 方波含有大量高次谐波，听感尖锐；正弦波基频纯净，更适合音乐演示。
 - I2S 是数字音频标准接口，为后续旋律、采样播放预留空间。
 - MAX98357A 内置 D 类功放，可直接驱动喇叭，无需额外驱动电路。
@@ -213,10 +221,10 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 
 ### 硬件分析与文档
 
-| 任务                   | 产出文件                                                                         |
-| ---------------------- | -------------------------------------------------------------------------------- |
+| 任务                   | 产出文件                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------ |
 | 解析原理图 / PCB / BOM | `hardware/schematic.pdfhardware/pcb.pdf``hardware/MCPiano_硬件资源分析.xlsx` |
-| 编写硬件分析文档       | `hardware/bom_analysis.md`                                                     |
+| 编写硬件分析文档       | `hardware/bom_analysis.md`                                                   |
 
 ### 环境搭建与固件烧录
 
@@ -231,14 +239,14 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 
 ### 外设测试与验证
 
-| 测试项               | 脚本                       | 验证状态                      |
-| -------------------- | -------------------------- | ----------------------------- |
-| 按键 KEY1 / KEY2     | `tests/test_button.py`   | ✅ 通过                       |
-| 9 键手动按压         | `tests/test_buttons_9key.py` | ✅ 通过                       |
-| LED 绿 / 红          | `tests/test_led.py`      | ⏳ 未跑（面包板接线后需补测） |
-| MAX98357A I2S 功放 | `tests/test_max98357a.py` | ✅ 通过                       |
-| 9 键钢琴系统         | `tests/test_piano_v1.py` | ⏳ 待硬件验证                 |
-| ~~蜂鸣器七音阶~~   | `tests/test_buzzer.py`   | ~~✅ 通过~~（已废弃，PWM 方案） |
+| 测试项             | 脚本                           | 验证状态                         |
+| ------------------ | ------------------------------ | -------------------------------- |
+| 按键 KEY1 / KEY2   | `tests/test_button.py`       | ✅ 通过                          |
+| 9 键手动按压       | `tests/test_buttons_9key.py` | ✅ 通过                          |
+| LED 绿 / 红        | `tests/test_led.py`          | ⏳ 未跑（面包板接线后需补测）    |
+| MAX98357A I2S 功放 | `tests/test_max98357a.py`    | ✅ 通过                          |
+| 9 键钢琴系统       | `tests/test_piano_v1.py`     | ⏳ 待硬件验证                    |
+| ~~蜂鸣器七音阶~~  | `tests/test_buzzer.py`       | ~~✅ 通过~~（已废弃，PWM 方案） |
 
 ### 工具链前期准备
 
@@ -262,15 +270,15 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 
 ### 数字钢琴核心 v1
 
-| 任务 | 产出文件 | 状态 |
-|:-----|:---------|:----:|
-| MAX98357A I2S 功放驱动 | `piano/i2s_audio.py` | ✅ 已验证 |
-| 9 键扫描模块 | `piano/buttons.py` | ✅ 已验证 |
-| 钢琴状态机（音阶/八度） | `piano/piano.py` | ✅ 已完成 |
-| 上电自动运行入口 | `piano/main.py` | ✅ 已完成 |
-| 功放独立测试 | `tests/test_max98357a.py` | ✅ 通过 |
-| 9 键手动检测 | `tests/test_buttons_9key.py` | ✅ 通过 |
-| 钢琴系统综合测试 | `tests/test_piano_v1.py` | ⏳ 待验证 |
+| 任务                    | 产出文件                       |   状态   |
+| :---------------------- | :----------------------------- | :-------: |
+| MAX98357A I2S 功放驱动  | `piano/i2s_audio.py`         | ✅ 已验证 |
+| 9 键扫描模块            | `piano/buttons.py`           | ✅ 已验证 |
+| 钢琴状态机（音阶/八度） | `piano/piano.py`             | ✅ 已完成 |
+| 上电自动运行入口        | `piano/main.py`              | ✅ 已完成 |
+| 功放独立测试            | `tests/test_max98357a.py`    |  ✅ 通过  |
+| 9 键手动检测            | `tests/test_buttons_9key.py` |  ✅ 通过  |
+| 钢琴系统综合测试        | `tests/test_piano_v1.py`     | ⏳ 待验证 |
 
 ### 关键硬件接线（已确认）
 
