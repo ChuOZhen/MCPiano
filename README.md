@@ -15,7 +15,7 @@
   - GPIO34 → 八度+
   - GPIO35 → 八度-
 - **音符生成**：通过 MAX98357A I2S 功放模块 + 喇叭，输出 16-bit 正弦波 PCM 音频
-- **视觉反馈**：预留 LED 接口，本次因无 330Ω 限流电阻暂不启用
+- **视觉反馈**：预留 LED 接口，本次因无 330Ω 限流电阻暂不启用；OLED 显示当前音符（可选，GPIO2/4 I2C）
 - **系统稳定性**：上电自动进入工作状态，持续稳定响应
 
 ### 任务二：AI 原生开发工具链
@@ -59,7 +59,8 @@
 │   ├── test_led.py              # LED 指示灯测试
 │   ├── test_max98357a.py        # MAX98357A I2S 功放独立测试
 │   ├── test_buttons_9key.py     # 9 键手动按压检测
-│   └── test_piano_v1.py         # 9 键钢琴系统综合测试
+│   ├── test_piano_v1.py         # 9 键钢琴系统综合测试
+│   └── test_ssd1306.py          # SSD1306 OLED I2C 显示测试
 ├── docs/                        # 技术文档
 │   ├── mini_claude_code_notes.md
 │   ├── toolchain_proposal.md
@@ -100,7 +101,15 @@ mpremote connect /dev/ttyACM0 run tests/test_max98357a.py
 
 > 听到清晰正弦波七音阶即表示音频模块工作正常。
 
-### 3. 运行钢琴系统综合测试
+### 3. 运行 OLED 显示测试
+
+```bash
+mpremote connect /dev/ttyACM0 run tests/test_ssd1306.py
+```
+
+> OLED 依次显示 "MCPiano"、七音阶名、动态播放信息。
+
+### 4. 运行钢琴系统综合测试
 
 ```bash
 mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :
@@ -111,7 +120,7 @@ mpremote connect /dev/ttyACM0 run tests/test_piano_v1.py
 
 > 按下按键能听到对应音阶，八度+/- 能切换音高。
 
-### 4. 直接运行钢琴主程序
+### 5. 直接运行钢琴主程序
 
 ```bash
 mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :
@@ -120,7 +129,7 @@ mpremote connect /dev/ttyACM0 cp piano/piano.py :
 mpremote connect /dev/ttyACM0 run piano/main.py
 ```
 
-### 5. 运行其他外设测试
+### 6. 运行其他外设测试
 
 ```bash
 mpremote connect /dev/ttyACM0 run tests/test_button.py
@@ -146,6 +155,16 @@ mpremote connect /dev/ttyACM0 run tests/test_led.py
 > ⚠️ **注意模块差异**：市面上 MAX98357A 模块的 GAIN 逻辑不统一。本项目的模块**GND=高增益、VIN=正常增益**，因此 GAIN 接 VIN。如果你的模块相反，表现为音量数字越大声音越小，请把 GAIN 改接 GND。
 >
 > ⚠️ **SD_MODE 悬空会导致功放状态不稳定**，表现为大音量反而变小、间歇失声或底噪异常。
+
+### SSD1306 OLED 接线
+
+| SSD1306 OLED | VCC | GND | SCL | SDA |
+|:-------------|:----|:----|:----|:----|
+| 接 ESP32 | 5V | GND | GPIO2 | GPIO4 |
+
+> ⚠️ **GPIO2 启动模式注意**：GPIO2 在 ESP32 启动时连接板载蓝色 LED，低电平可能影响下载模式。如果下载固件失败，下载时请断开 GPIO2 的 SCL 线。
+>
+> 默认 I2C 地址为 `0x3C`；若花屏或不显示，可尝试 `addr=0x3D`。
 
 ### 其他外设（保留）
 
