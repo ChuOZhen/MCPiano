@@ -16,15 +16,12 @@ I2C_FREQ = 100000
 def scan_i2c():
     """Scan the I2C bus and print found device addresses."""
     i2c = SoftI2C(scl=Pin(SCL_PIN), sda=Pin(SDA_PIN), freq=I2C_FREQ)
-    try:
-        devices = i2c.scan()
-        print("I2C scan found devices:", [hex(addr) for addr in devices])
-        if 0x3C in devices or 0x3D in devices:
-            print("SSD1306 OLED detected.")
-        else:
-            print("No SSD1306 OLED detected (expected 0x3C or 0x3D).")
-    finally:
-        i2c.deinit()
+    devices = i2c.scan()
+    print("I2C scan found devices:", [hex(addr) for addr in devices])
+    if 0x3C in devices or 0x3D in devices:
+        print("SSD1306 OLED detected.")
+    else:
+        print("No SSD1306 OLED detected (expected 0x3C or 0x3D).")
 
 
 if __name__ == "__main__":
