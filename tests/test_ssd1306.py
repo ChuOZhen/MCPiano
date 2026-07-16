@@ -1,7 +1,7 @@
 """
 SSD1306 OLED display test for MCPiano.
 
-Uses the bundled ``ssd1306`` driver over SoftI2C on GPIO2 (SCL) and GPIO4
+Uses the bundled ``ssd1306`` driver over SoftI2C on GPIO5 (SCL) and GPIO13
 (SDA).  The OLED module is powered from the 5V rail.
 
 If the board reports ``ImportError: no module named 'ssd1306'``, copy
@@ -24,8 +24,8 @@ except ImportError as exc:
 
 OLED_WIDTH = 128
 OLED_HEIGHT = 64
-SCL_PIN = 2
-SDA_PIN = 4
+SCL_PIN = 5
+SDA_PIN = 13
 I2C_FREQ = 400000
 TEST_DELAY_S = 1.5
 
@@ -61,7 +61,7 @@ def init_oled():
 
     raise OSError(
         "SSD1306 not found at 0x3C or 0x3D; "
-        "check wiring (SCL=GPIO2, SDA=GPIO4) and power."
+        "check wiring (SCL=GPIO5, SDA=GPIO13) and power."
     )
 
 
@@ -127,7 +127,7 @@ def run_tests():
         print("All OLED tests completed.")
     except OSError as exc:
         print(f"OLED init failed: {exc}")
-        print("Check wiring (SCL=GPIO2, SDA=GPIO4), power, and I2C address.")
+        print("Check wiring (SCL=GPIO5, SDA=GPIO13), power, and I2C address.")
     finally:
         if oled is not None:
             oled.fill(0)
