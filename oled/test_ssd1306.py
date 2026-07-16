@@ -44,7 +44,9 @@ def init_oled():
     Raises:
         OSError: if no SSD1306 device responds on the I2C bus.
     """
-    i2c = SoftI2C(scl=Pin(SCL_PIN), sda=Pin(SDA_PIN), freq=I2C_FREQ)
+    scl = Pin(SCL_PIN, Pin.IN, Pin.PULL_UP)
+    sda = Pin(SDA_PIN, Pin.IN, Pin.PULL_UP)
+    i2c = SoftI2C(scl=scl, sda=sda, freq=I2C_FREQ)
     scan = i2c.scan()
     print(f"I2C scan found devices: {[hex(a) for a in scan]}")
 

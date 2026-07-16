@@ -174,9 +174,11 @@ mpremote connect /dev/ttyACM0 run tests/test_led.py
 
 | SSD1306 OLED | VCC | GND | SCL | SDA |
 |:-------------|:----|:----|:----|:----|
-| 接 ESP32 | 5V | GND | GPIO5 | GPIO13 |
+| 接 ESP32 | 3.3V/5V | GND | GPIO5 | GPIO13 |
 
 > 默认 I2C 地址为 `0x3C`；若花屏或不显示，可尝试 `addr=0x3D`。
+>
+> 如果模块没有内置上拉电阻，需要在 SCL 和 SDA 上各接一个 **4.7kΩ 电阻到 3.3V**，否则 I2C 总线无法正常工作。
 
 ### 其他外设（保留）
 
