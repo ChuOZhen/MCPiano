@@ -52,6 +52,17 @@ def _read_line(ser):
         return ""
 
 
+def append_log(text: str) -> None:
+    """Append one or more lines of text to the log ring buffer.
+
+    This lets other tools (e.g. ``esp32_execute``) make captured output
+    visible to ``esp32_logs`` and ``esp32_error``.
+    """
+    for line in text.splitlines():
+        if line:
+            _log_buffer.append(line)
+
+
 async def _monitor_loop():
     """Background coroutine that continuously reads serial lines."""
     try:
@@ -67,6 +78,43 @@ async def _monitor_loop():
         raise
 
 
+async def _stop_monitor():
+    """Cancel the background monitor task and close the serial port."""
+    global _monitor_task
+    if _monitor_task:
+        _monitor_task.cancel()
+        try:
+            await _monitor_task
+        except asyncio.CancelledError:
+            pass
+        _monitor_task = None
+    if _serial_conn and _serial_conn.is_open:
+        await asyncio.to_thread(_serial_conn.close)
+
+
+async def _start_monitor():
+    """Open the serial port and start the background monitor task."""
+    global _monitor_task
+    if _monitor_task is None or _monitor_task.done():
+        _monitor_task = asyncio.create_task(_monitor_loop())
+
+
+async def pause_monitor() -> dict:
+    """Pause the monitor so another tool can use the serial port.
+
+    The log ring buffer is preserved.  Call :func:`resume_monitor` to restart
+    background reading afterwards.
+    """
+    await _stop_monitor()
+    return {"success": True, "message": "Serial monitor paused"}
+
+
+async def resume_monitor() -> dict:
+    """Resume the background serial monitor after another tool finishes."""
+    await _start_monitor()
+    return {"success": True, "message": "Serial monitor resumed"}
+
+
 async def esp32_serial(action: str, duration: int = 5) -> dict:
     """Control the serial monitor.
 
@@ -77,28 +125,17 @@ async def esp32_serial(action: str, duration: int = 5) -> dict:
     Returns:
         Dict with operation result. ``"read"`` returns collected ``lines``.
     """
-    global _monitor_task
-
     if action == "start":
-        if _monitor_task is None or _monitor_task.done():
-            _monitor_task = asyncio.create_task(_monitor_loop())
+        await _start_monitor()
         return {"success": True, "message": "Serial monitor started"}
 
     if action == "stop":
-        if _monitor_task:
-            _monitor_task.cancel()
-            try:
-                await _monitor_task
-            except asyncio.CancelledError:
-                pass
-            _monitor_task = None
-        if _serial_conn and _serial_conn.is_open:
-            await asyncio.to_thread(_serial_conn.close)
+        await _stop_monitor()
         return {"success": True, "message": "Serial monitor stopped"}
 
     if action == "read":
         if _monitor_task is None or _monitor_task.done():
-            await esp32_serial("start")
+            await _start_monitor()
         await asyncio.sleep(duration)
         return {"success": True, "lines": list(_log_buffer)}
 

@@ -1,30 +1,32 @@
-
 # MCPiano — AI 原生嵌入式数字钢琴 & 开发工具链
 
-> **硬件变更说明**：SSD1306 OLED 显示屏因硬件故障（I2C 无响应）已从项目中移除。
-> 当前显示方案：无。如需状态指示，使用 GPIO32/33 LED（待安装 330Ω 限流电阻）。
+> 📹 **Week 2 视频演示**: [Bilibili - MCPiano: KimiCode + MCP 工具链开发 ESP32 数字钢琴](你的视频链接)
+>
+> 🔧 **AI-Native 工具链**: 本项目通过 MCP (Model Context Protocol) 实现 AI 自动操控 ESP32 硬件
+>
+> **硬件变更说明**：SSD1306 OLED 显示屏因硬件故障（I2C 无响应）已从项目中移除。当前显示方案：无。如需状态指示，使用 GPIO32/33 LED。
 
 ---
 
 ## 项目概述
 
- 本项目包含 **两个相互关联的工程任务**：
+本项目包含 **两个相互关联的工程任务**：
 
 ### 任务一：数字钢琴
 
- 利用 ESP32 开发板实现一台功能完整的 9 键数字钢琴：
+利用 ESP32 开发板实现一台功能完整的 9 键数字钢琴：
 
 - **按键输入**：9 个面包板按键
   - GPIO23/22/21/19/18/14/12 → do/re/mi/fa/sol/la/si（7 音阶）
   - GPIO34 → 八度+
   - GPIO35 → 八度-
 - **音符生成**：通过 MAX98357A I2S 功放模块 + 喇叭，输出 16-bit 正弦波 PCM 音频
-- **视觉反馈**：预留 LED 接口，本次因无 330Ω 限流电阻暂不启用
+- **视觉反馈**：GPIO32(绿)/GPIO33(红) LED，低电平点亮，区分音符键与八度键
 - **系统稳定性**：上电自动进入工作状态，持续稳定响应
 
 ### 任务二：AI 原生开发工具链
 
- 设计并实现一套工具链，使 AI 编程助手能直接与 ESP32 开发板交互：
+设计并实现一套工具链，使 AI 编程助手能直接与 ESP32 开发板交互：
 
 | 序号 | 能力         | 描述                                 |
 | ---- | ------------ | ------------------------------------ |
@@ -35,51 +37,64 @@
 | 5    | 运行日志检索 | AI 收集程序执行日志                  |
 | 6    | 错误报告     | AI 自动检测 MicroPython 运行时异常   |
 
- 以数字钢琴为验证基准，演示 AI 通过工具链驱动嵌入式开发的 **完整闭环**（AI 发现问题 → 修改代码 → 自动部署 → 验证通过）。
+以数字钢琴为验证基准，演示 AI 通过工具链驱动嵌入式开发的 **完整闭环**（AI 发现问题 → 修改代码 → 自动部署 → 验证通过）。
 
 ---
 
-## 目录结构
+## 项目结构
 
 ```
-~/MCPpiano/
-├── README.md
-├── .gitignore
-├── .vscode/                     # VS Code 工作区配置
-│   └── settings.json            # MCP 服务器配置
-├── piano/                       # 数字钢琴固件（MicroPython）
-│   ├── i2s_audio.py             # MAX98357A I2S 功放驱动（16-bit 正弦波）
-│   ├── buttons.py               # 9 键扫描（7 音阶 + 2 功能键）
-│   ├── piano.py                 # 钢琴状态机（音阶/八度/响应）
-│   └── main.py                  # 上电自动运行入口
-├── toolchain/                   # AI 原生工具链（Python）
-│   ├── mcp_server.py            # MCP 服务器骨架
-│   ├── test_server.py           # MCP 服务器手动测试脚本
-│   └── tools/                   # 硬件工具实现
-│       ├── serial_monitor.py    # 串口监控（W2 已实现）
-│       ├── file_transfer.py     # 文件传输（W3 占位）
-│       ├── executor.py          # 程序执行/复位（W3 占位）
-│       └── error_handler.py     # 错误报告（W3 占位）
-├── hardware/                    # 硬件工程文档
-│   ├── schematic.pdf            # 原理图
-│   ├── pcb.pdf                  # PCB 版图
-│   ├── MCPiano_硬件资源分析.xlsx
-│   └── bom_analysis.md          # BOM 与硬件资源分析
-├── tests/                       # 外设测试脚本
-│   ├── test_button.py           # 原 2 键按键测试
-│   ├── test_buzzer.py           # 已废弃：原 GPIO25 PWM 蜂鸣器测试
-│   ├── test_led.py              # LED 指示灯测试
-│   ├── test_max98357a.py        # MAX98357A I2S 功放独立测试
-│   ├── test_buttons_9key.py     # 9 键手动按压检测
-│   ├── test_piano_v1.py         # 9 键钢琴系统综合测试
-│   └── test_toolchain_serial.py # 工具链串口监控测试
-├── docs/                        # 技术文档
-│   ├── mini_claude_code_notes.md
-│   ├── toolchain_proposal.md
-│   ├── toolchain_architecture.md # 工具链架构设计文档
-│   └── 最新25级实验班暑假大作业要求.pdf
-├── images/                      # 演示截图、视频封面
-└── report/                      # 最终技术报告
+MCPpiano/
+├── README.md                          # 项目总览
+├── .gitignore                         # 排除规则
+├── .mcp.json                          # MCP 服务器配置
+├── ESP32_GENERIC-20240602-v1.23.0.bin # MicroPython v1.23.0 固件
+│
+├── piano/                             # 🎹 数字钢琴固件（MicroPython）
+│   ├── main.py                        # 入口程序
+│   ├── piano.py                       # 钢琴逻辑 + LED 反馈
+│   ├── buttons.py                     # 9键+2八度键扫描
+│   └── i2s_audio.py                   # MAX98357A I2S 功放驱动
+│
+├── toolchain/                         # 🔧 AI-Native MCP 工具链（Python）
+│   ├── mcp_server.py                  # MCP 服务器主入口
+│   ├── test_server.py                 # 服务器测试
+│   └── tools/                         # 工具模块
+│       ├── raw_repl.py                # MicroPython raw REPL 协议
+│       ├── file_transfer.py           # esp32_upload / esp32_download
+│       ├── serial_monitor.py          # esp32_serial / esp32_logs
+│       ├── executor.py                # esp32_execute / esp32_reset
+│       └── error_handler.py           # esp32_error
+│
+├── tests/                             # ✅ 硬件测试脚本
+│   ├── test_button.py                 # 基础按键测试
+│   ├── test_buttons_9key.py           # 9键+八度键测试
+│   ├── test_buzzer.py                 # ⚠️ 已废弃（PWM蜂鸣器）
+│   ├── test_led.py                    # LED 测试
+│   ├── test_max98357a.py              # I2S功放测试
+│   ├── test_piano_v1.py               # 钢琴v1集成测试
+│   ├── test_toolchain_serial.py       # 串口工具测试
+│   └── test_toolchain_w3.py           # 工具链闭环测试
+│
+├── hardware/                          # 🔩 硬件工程文档
+│   ├── bom_analysis.md                # GPIO映射、BOM分析
+│   ├── MCPiano_硬件资源分析.xlsx      # 可视化GPIO/BOM数据表
+│   ├── pcb.pdf                        # PCB版图
+│   └── schematic.pdf                  # 原理图
+│
+├── docs/                              # 📚 技术文档
+│   ├── 最新25级实验班暑假大作业要求.pdf
+│   ├── mini_claude_code_notes.md      # Mini Claude Code源码分析
+│   ├── toolchain_proposal.md          # MCP服务器实现指南
+│   └── toolchain_architecture.md      # 工具链架构文档
+│
+├── images/                            # 演示截图/视频封面
+├── report/                            # 最终技术报告（W5）
+│
+└── 本地文件/                           # 🗂️ 本地私有资料（gitignored）
+    ├── kimi.md                        # Agent AutoContext
+    ├── mine.md                        # 架构图与评分矩阵
+    └── *.pdf                          # 原始文档
 ```
 
 ---
@@ -97,91 +112,92 @@
 
 ---
 
+## 硬件配置
+
+| 组件 | GPIO | 说明 |
+|------|------|------|
+| KEY do | 23 | 琴键 do |
+| KEY re | 22 | 琴键 re |
+| KEY mi | 21 | 琴键 mi |
+| KEY fa | 19 | 琴键 fa |
+| KEY sol | 18 | 琴键 sol |
+| KEY la | 14 | 琴键 la |
+| KEY si | 12 | 琴键 si |
+| KEY 八度+ | 34 | 八度升 |
+| KEY 八度- | 35 | 八度降 |
+| LED 绿 | 32 | 低电平点亮，弹琴键时亮 |
+| LED 红 | 33 | 低电平点亮，调八度时亮 |
+| I2S BCLK | 16 | 功放位时钟 |
+| I2S LRC | 17 | 功放字时钟 |
+| I2S DIN | 25 | 功放数据输入 |
+| 串口 | /dev/ttyACM0 | 115200 baud |
+
+## MCP 工具链
+
+| 工具 | 功能 | 状态 |
+|------|------|------|
+| `esp32_upload` | 上传文件到 ESP32 | ✅ |
+| `esp32_download` | 从 ESP32 下载文件 | ✅ |
+| `esp32_execute` | 执行/停止程序 | ✅ |
+| `esp32_reset` | 软/硬复位 | ✅ |
+| `esp32_serial` | 串口监控 | ✅ |
+| `esp32_logs` | 日志检索 | ✅ |
+| `esp32_error` | 错误解析 | ✅ |
+
+---
+
 ## 快速开始
 
-### 1. 进入虚拟环境
+### 环境准备
 
 ```bash
-cd ~/MCPpiano
+# 克隆仓库
+git clone https://github.com/ChuOZhen/MCPiano.git
+cd MCPiano
+
+# 创建虚拟环境
+python3 -m venv .venv
 source .venv/bin/activate
+
+# 安装依赖
+pip install esptool pyserial mpremote mcp
 ```
 
-### 2. 运行 I2S 功放测试
+### 烧录固件
 
 ```bash
+esptool --chip esp32 --port /dev/ttyACM0 erase_flash
+esptool --chip esp32 --port /dev/ttyACM0 --baud 460800 write_flash -z 0x1000 ESP32_GENERIC-20240602-v1.23.0.bin
+```
+
+### 运行测试
+
+```bash
+# 按键测试
+mpremote connect /dev/ttyACM0 run tests/test_buttons_9key.py
+
+# 功放测试
 mpremote connect /dev/ttyACM0 run tests/test_max98357a.py
-```
 
-> 听到清晰正弦波七音阶即表示音频模块工作正常。
-
-### 3. 运行钢琴系统综合测试
-
-```bash
+# 钢琴系统综合测试
 mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :
 mpremote connect /dev/ttyACM0 cp piano/buttons.py :
 mpremote connect /dev/ttyACM0 cp piano/piano.py :
 mpremote connect /dev/ttyACM0 run tests/test_piano_v1.py
+
+# 工具链测试
+python tests/test_toolchain_w3.py
 ```
 
-> 按下按键能听到对应音阶，八度+/- 能切换音高。
-
-### 4. 直接运行钢琴主程序
+### 启动 MCP 服务器
 
 ```bash
-mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :
-mpremote connect /dev/ttyACM0 cp piano/buttons.py :
-mpremote connect /dev/ttyACM0 cp piano/piano.py :
-mpremote connect /dev/ttyACM0 run piano/main.py
+python toolchain/mcp_server.py
 ```
 
-### 5. 运行其他外设测试
+### KimiCode 配置
 
-```bash
-mpremote connect /dev/ttyACM0 run tests/test_button.py
-mpremote connect /dev/ttyACM0 run tests/test_led.py
-```
-
----
-
-## 工具链快速开始
-
-MCPiano 工具链是 AI 编程助手与 ESP32 硬件之间的桥梁，基于 MCP（Model Context Protocol）协议实现。当前已完成架构设计和第一个可工作的工具：串口监控。
-
-### 1. 安装 MCP SDK
-
-```bash
-source .venv/bin/activate
-pip install mcp pyserial
-```
-
-### 2. 测试 MCP 服务器
-
-项目已配置好工作区 MCP 服务器（`.vscode/settings.json`）。先用命令行验证：
-
-```bash
-# 启动服务器（手动验证）
-PYTHONPATH=/home/chuzhen/MCPpiano/toolchain python toolchain/mcp_server.py
-
-# 或使用测试脚本验证 JSON-RPC 通信
-python toolchain/test_server.py
-```
-
-### 3. 测试串口监控工具
-
-```bash
-python tests/test_toolchain_serial.py
-```
-
-### 4. 在 KimiCode 中直接使用
-
-工作区配置已写入 `.vscode/settings.json`。在 VS Code 中打开本项目后，KimiCode 会自动加载 `mcpiano-esp32` 服务器。
-
-如果未自动加载，手动在 VS Code 命令面板中：
-1. `MCP: Refresh Server`
-2. 或重启 VS Code
-
-配置内容：
-
+在 VS Code KimiCode 设置中添加：
 ```json
 {
   "mcpServers": {
@@ -193,8 +209,6 @@ python tests/test_toolchain_serial.py
   }
 }
 ```
-
-更多细节见 `docs/toolchain_architecture.md` 和 `docs/toolchain_proposal.md`。
 
 ---
 
@@ -216,13 +230,12 @@ python tests/test_toolchain_serial.py
 >
 > ⚠️ **SD_MODE 悬空会导致功放状态不稳定**，表现为大音量反而变小、间歇失声或底噪异常。
 
-
-### 其他外设（保留）
+### 其他外设
 
 | 外设    | GPIO | 方向 | 电平特性                |
 | :------ | :--: | :--: | :---------------------- |
-| KEY1    |  34  | 输入 | 内部上拉，按下 = 低电平 |
-| KEY2    |  35  | 输入 | 内部上拉，按下 = 低电平 |
+| KEY 八度+ |  34  | 输入 | 内部上拉，按下 = 低电平 |
+| KEY 八度- |  35  | 输入 | 内部上拉，按下 = 低电平 |
 | LED2 绿 |  32  | 输出 | 低电平有效，0 = 亮      |
 | LED3 红 |  33  | 输出 | 低电平有效，0 = 亮      |
 
@@ -261,96 +274,49 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 
 ---
 
-## Week 1 完成情况（07/06 — 07/12）
+## 开发进度
 
-### 硬件分析与文档
+### Week 1 (7/6–7/12): 硬件入门 ✅
+- [x] 原理图分析 → `hardware/bom_analysis.md`
+- [x] MicroPython 固件烧录
+- [x] 外设测试：按键、LED、蜂鸣器
+- [x] 工具链方案选型：MCP 服务器
+- [x] 交付：Bilibili W1 视频
 
-| 任务                   | 产出文件                                                                       |
-| ---------------------- | ------------------------------------------------------------------------------ |
-| 解析原理图 / PCB / BOM | `hardware/schematic.pdfhardware/pcb.pdf``hardware/MCPiano_硬件资源分析.xlsx` |
-| 编写硬件分析文档       | `hardware/bom_analysis.md`                                                   |
+### Week 2 (7/13–7/19): 钢琴核心 + 工具链架构 ✅
+- [x] 数字钢琴 v1 固件：9键 + I2S功放 + 八度切换
+  - [x] `piano/buttons.py` — 按键扫描 + 软件去抖
+  - [x] `piano/i2s_audio.py` — MAX98357A I2S 驱动
+  - [x] `piano/piano.py` — 钢琴逻辑 + LED 反馈
+  - [x] `piano/main.py` — 入口程序
+- [x] MCP 工具链完整实现（6个工具）
+  - [x] `esp32_upload` — 文件上传
+  - [x] `esp32_download` — 文件下载
+  - [x] `esp32_execute` — 程序执行/停止
+  - [x] `esp32_reset` — 软/硬复位
+  - [x] `esp32_serial` — 串口监控
+  - [x] `esp32_logs` — 日志检索
+  - [x] `esp32_error` — 错误解析
+- [x] 工具链闭环测试：`tests/test_toolchain_w3.py` ✅ 通过
+- [x] KimiCode MCP 集成验证：`mcpiano-esp32 · 6 tools connected`
+- [x] 交付：Bilibili W2 视频
 
-### 环境搭建与固件烧录
+### Week 3 (7/20–7/26): 工具链深度开发 🔵 计划中
+- [ ] 工具链稳定性优化
+- [ ] 更多错误场景覆盖
+- [ ] 自动化回归测试
+- [ ] 交付：Bilibili W3 视频
 
-| 任务                    | 状态                                     |
-| ----------------------- | ---------------------------------------- |
-| 安装 Python 3.14 + pip  | ✅                                       |
-| 创建 venv 虚拟环境      | ✅`.venv/`                             |
-| 安装 esptool + pyserial | ✅                                       |
-| 下载 MicroPython 固件   | ✅`ESP32_GENERIC-20240602-v1.23.0.bin` |
-| 擦除并烧录 Flash        | ✅ ESP32-D0WD-V3 已确认                  |
-| 验证 REPL               | ✅`>>>` 提示符正常                     |
+### Week 4 (7/27–8/2): 闭环验证 🔵 计划中
+- [ ] AI 自修复闭环演示
+- [ ] Bug 场景设计与验证
+- [ ] 交付：Bilibili W4 视频（关键节点）
 
-### 外设测试与验证
-
-| 测试项             | 脚本                           | 验证状态                         |
-| ------------------ | ------------------------------ | -------------------------------- |
-| 按键 KEY1 / KEY2   | `tests/test_button.py`       | ✅ 通过                          |
-| 9 键手动按压       | `tests/test_buttons_9key.py` | ✅ 通过                          |
-| LED 绿 / 红        | `tests/test_led.py`          | ⏳ 未跑（面包板接线后需补测）    |
-| MAX98357A I2S 功放 | `tests/test_max98357a.py`    | ✅ 通过                          |
-| 9 键钢琴系统       | `tests/test_piano_v1.py`     | ⏳ 待硬件验证                    |
-| ~~蜂鸣器七音阶~~  | `tests/test_buzzer.py`       | ~~✅ 通过~~（已废弃，PWM 方案） |
-
-### 工具链前期准备
-
-| 文档                      | 路径                               |
-| ------------------------- | ---------------------------------- |
-| mini-claude-code 阅读笔记 | `docs/mini_claude_code_notes.md` |
-| KimiCode MCP 扩展机制详解 | `docs/toolchain_proposal.md`     |
-
-### 仓库初始化
-
-| 任务                     | 状态                                                |
-| ------------------------ | --------------------------------------------------- |
-| 标准目录结构创建         | ✅`piano/` `toolchain/` `tests/` `docs/` 等 |
-| Git 初始化 + 首次 commit | ✅`180b9d7`                                       |
-| `README.md` 创建       | ✅ 已提交                                           |
-| `.gitignore` 配置      | ✅ 排除`.venv/` `*.bin` `本地文件/`           |
-
----
-
-## Week 2 进行中（07/13 — 07/19）
-
-### 数字钢琴核心 v1
-
-| 任务                    | 产出文件                       |   状态   |
-| :---------------------- | :----------------------------- | :-------: |
-| MAX98357A I2S 功放驱动  | `piano/i2s_audio.py`         | ✅ 已验证 |
-| 9 键扫描模块            | `piano/buttons.py`           | ✅ 已验证 |
-| 钢琴状态机（音阶/八度） | `piano/piano.py`             | ✅ 已完成 |
-| 上电自动运行入口        | `piano/main.py`              | ✅ 已完成 |
-| 功放独立测试            | `tests/test_max98357a.py`    |  ✅ 通过  |
-| 9 键手动检测            | `tests/test_buttons_9key.py` |  ✅ 通过  |
-| 钢琴系统综合测试        | `tests/test_piano_v1.py`     | ⏳ 待验证 |
-
-### 工具链架构与首个工具
-
-| 任务                         | 产出文件                                |   状态   |
-| :--------------------------- | :-------------------------------------- | :-------: |
-| 工具链架构设计文档           | `docs/toolchain_architecture.md`      | ✅ 已完成 |
-| MCP 服务器骨架               | `toolchain/mcp_server.py`             | ✅ 已完成 |
-| 串口监控工具                 | `toolchain/tools/serial_monitor.py`   | ✅ 已实现 |
-| 文件传输/执行/复位/错误占位  | `toolchain/tools/*.py`                | ⏳ W3 实现 |
-| 工具链串口测试               | `tests/test_toolchain_serial.py`      | ⏳ 待验证 |
-
-### 关键硬件接线（已确认）
-
-- **MAX98357A**：VIN→5V, GND→GND, SD_MODE→VIN, GAIN→VIN, BCLK→GPIO16, LRCK→GPIO17, DIN→GPIO25
-- **9 个按键**：GPIO23/22/21/19/18/14/12/34/35 → 按键 → GND
-- **LED**：本次暂不安装（无 330Ω 限流电阻）
-
----
-
-## 项目里程碑
-
-| 阶段   | 时间           | 主题                      | 核心产出                     |
-| ------ | -------------- | ------------------------- | ---------------------------- |
-| 第一周 | 07/06 — 07/12 | 硬件认知与 AI 协作入门    | 硬件分析文档 + 外设测试代码  |
-| 第二周 | 07/13 — 07/19 | 数字钢琴核心 + 工具链架构 | 可运行数字钢琴 v1 + 技术方案 |
-| 第三周 | 07/20 — 07/26 | 工具链基础功能开发        | 6 项基本工程能力可用         |
-| 第四周 | 07/27 — 08/02 | 工具链集成与闭环验证      | AI 自主操控 ESP32 完整演示   |
-| 第五周 | 08/03 — 08/09 | 系统完善与项目收尾        | 最终演示 + 技术报告          |
+### Week 5 (8/3–8/9): 完善与交付 🔵 计划中
+- [ ] 扩展功能（录音/回放/动画）
+- [ ] 技术报告 15-20 页
+- [ ] GitHub 整理
+- [ ] 交付：Bilibili W5 视频 + 报告
 
 ---
 
@@ -375,4 +341,4 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 
 ---
 
- *项目进行中，逐步更新……*
+*项目进行中，逐步更新……*

@@ -1,13 +1,9 @@
 {
-    "mcpServers": {
-        "mcpiano-esp32": {
-            "command": "/home/chuzhen/MCPpiano/.venv/bin/python",
-            "args": [
-                "/home/chuzhen/MCPpiano/toolchain/mcp_server.py"
-            ],
-            "env": {
-                "PYTHONPATH": "/home/chuzhen/MCPpiano/toolchain"
-            }
-        }
+  "mcpServers": {
+    "mcpiano-esp32": {
+      "command": "/home/chuzhen/MCPpiano/.venv/bin/python",
+      "args": ["/home/chuzhen/MCPpiano/toolchain/mcp_server.py"],
+      "env": {"PYTHONPATH": "/home/chuzhen/MCPpiano/toolchain"}
     }
+  }
 }

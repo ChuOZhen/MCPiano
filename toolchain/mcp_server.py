@@ -99,17 +99,17 @@ async def list_tools() -> list[Tool]:
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     """Route incoming tool calls to the appropriate backend function."""
     if name == "esp32_upload":
-        result = esp32_upload(
+        result = await esp32_upload(
             arguments.get("local_path", ""),
             arguments.get("remote_path", ""),
         )
     elif name == "esp32_execute":
-        result = esp32_execute(
+        result = await esp32_execute(
             arguments.get("entry_file", ""),
             arguments.get("action", "run"),
         )
     elif name == "esp32_reset":
-        result = esp32_reset(arguments.get("mode", "soft"))
+        result = await esp32_reset(arguments.get("mode", "soft"))
     elif name == "esp32_serial":
         result = await esp32_serial(
             arguments.get("action", "read"),
@@ -121,7 +121,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             arguments.get("filter", ""),
         )
     elif name == "esp32_error":
-        result = esp32_error(arguments.get("auto_parse", True))
+        result = await esp32_error(arguments.get("auto_parse", True))
     else:
         result = {"success": False, "message": f"Unknown tool: {name}"}
 
