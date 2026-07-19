@@ -1,6 +1,6 @@
 # MCPiano — AI 原生嵌入式数字钢琴 & 开发工具链
 
-> 📹 **Week 2 视频演示**: [Bilibili - MCPiano: KimiCode + MCP 工具链开发 ESP32 数字钢琴](你的视频链接)
+> 📹 **Week 2 视频演示**: [Bilibili - MCPiano: KimiCode + MCP 工具链开发 ESP32 数字钢琴](https://www.bilibili.com/video/BV1kCKv6HELY/)
 >
 > 🔧 **AI-Native 工具链**: 本项目通过 MCP (Model Context Protocol) 实现 AI 自动操控 ESP32 硬件
 >
