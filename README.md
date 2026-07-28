@@ -16,12 +16,13 @@
 
 利用 ESP32 开发板实现一台功能完整的 9 键数字钢琴：
 
-- **按键输入**：9 个面包板按键
+- **按键输入**：10 个面包板按键
   - GPIO23/22/21/19/18/14/12 → do/re/mi/fa/sol/la/si（7 音阶）
   - GPIO34 → 八度+
   - GPIO35 → 八度-
+  - GPIO5 → 录制/播放（短按=开始/停止录制，长按=播放）
 - **音符生成**：通过 MAX98357A I2S 功放模块 + 喇叭，输出 16-bit 正弦波 PCM 音频
-- **视觉反馈**：GPIO32(绿)/GPIO33(红) LED，低电平点亮，区分音符键与八度键
+- **视觉反馈**：7 个音调键 + 2 个八度键的 LED 由按键回路硬件直驱（3.3V → LED → 330Ω → 按键 → GND），按下即亮、释放即灭，实现零延迟硬件级声光同步
 - **系统稳定性**：上电自动进入工作状态，持续稳定响应
 
 ### 任务二：AI 原生开发工具链
@@ -52,7 +53,7 @@ MCPpiano/
 │
 ├── piano/                             # 🎹 数字钢琴固件（MicroPython）
 │   ├── main.py                        # 入口程序
-│   ├── piano.py                       # 钢琴逻辑 + LED 反馈
+│   ├── piano.py                       # 钢琴逻辑 + 声音控制
 │   ├── buttons.py                     # 9键+2八度键扫描
 │   └── i2s_audio.py                   # MAX98357A I2S 功放驱动
 │
@@ -125,8 +126,8 @@ MCPpiano/
 | KEY si | 12 | 琴键 si |
 | KEY 八度+ | 34 | 八度升 |
 | KEY 八度- | 35 | 八度降 |
-| LED 绿 | 32 | 低电平点亮，弹琴键时亮 |
-| LED 红 | 33 | 低电平点亮，调八度时亮 |
+| KEY 录制/播放 | 5 | 短按开始/停止录制，长按播放 |
+| LED（直驱） | - | 3.3V → LED → 330Ω → 按键 → GND，GPIO 不做输出 |
 | I2S BCLK | 16 | 功放位时钟 |
 | I2S LRC | 17 | 功放字时钟 |
 | I2S DIN | 25 | 功放数据输入 |
@@ -180,9 +181,10 @@ mpremote connect /dev/ttyACM0 run tests/test_buttons_9key.py
 mpremote connect /dev/ttyACM0 run tests/test_max98357a.py
 
 # 钢琴系统综合测试
-mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :
-mpremote connect /dev/ttyACM0 cp piano/buttons.py :
-mpremote connect /dev/ttyACM0 cp piano/piano.py :
+mpremote connect /dev/ttyACM0 cp piano/i2s_audio.py :i2s_audio.py
+mpremote connect /dev/ttyACM0 cp piano/buttons.py :buttons.py
+mpremote connect /dev/ttyACM0 cp piano/piano.py :piano.py
+mpremote connect /dev/ttyACM0 cp piano/main.py :main.py
 mpremote connect /dev/ttyACM0 run tests/test_piano_v1.py
 
 # 工具链测试
@@ -234,10 +236,10 @@ python toolchain/mcp_server.py
 
 | 外设    | GPIO | 方向 | 电平特性                |
 | :------ | :--: | :--: | :---------------------- |
-| KEY 八度+ |  34  | 输入 | 内部上拉，按下 = 低电平 |
-| KEY 八度- |  35  | 输入 | 内部上拉，按下 = 低电平 |
-| LED2 绿 |  32  | 输出 | 低电平有效，0 = 亮      |
-| LED3 红 |  33  | 输出 | 低电平有效，0 = 亮      |
+| KEY 八度+ |  34  | 输入 | INPUT-ONLY，需外接上拉，按下 = 低电平 |
+| KEY 八度- |  35  | 输入 | INPUT-ONLY，需外接上拉，按下 = 低电平 |
+| KEY 录制/播放 |  5  | 输入 | 内部上拉可用，按下 = 低电平 |
+| LED |  -  | 直驱 | 3.3V → LED → 330Ω → 按键 → GND |
 
 > ⚠️ GPIO6–11 被 SPI Flash 占用，不可用。
 
@@ -301,11 +303,15 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 - [x] KimiCode MCP 集成验证：`mcpiano-esp32 · 6 tools connected`
 - [x] 交付：Bilibili W2 视频
 
-### Week 3 (7/20–7/26): 工具链深度开发 🔵 计划中
-- [ ] 工具链稳定性优化
-- [ ] 更多错误场景覆盖
-- [ ] 自动化回归测试
-- [ ] 交付：Bilibili W3 视频
+### Week 3 (7/20–7/26): LED 声光同步 + 录音回放扩展 ✅
+- [x] 7 音调键 + 2 八度键 LED 改为硬件直驱：3.3V → LED → 330Ω → 按键 → GND
+- [x] GPIO 只做输入检测，不驱动 LED，消除软件输出延迟
+- [x] 声光严格同步：按下瞬间灯亮+发声，释放瞬间灯灭+静音
+- [x] 删除 `piano/leds.py`，简化 `piano/piano.py`
+- [x] I2S 预初始化 + 5ms 主循环保持
+- [x] 多键支持：同时按住多键，喇叭播放最后按下音
+- [x] 新增 GPIO5 录制/播放键：短按开始/停止录制，长按播放
+- [x] `piano/piano.py` 实现录制/回放状态机，记录音符事件并按时间重放
 
 ### Week 4 (7/27–8/2): 闭环验证 🔵 计划中
 - [ ] AI 自修复闭环演示
@@ -313,7 +319,7 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 - [ ] 交付：Bilibili W4 视频（关键节点）
 
 ### Week 5 (8/3–8/9): 完善与交付 🔵 计划中
-- [ ] 扩展功能（录音/回放/动画）
+- [ ] 扩展功能（多段录音/循环播放/动画）
 - [ ] 技术报告 15-20 页
 - [ ] GitHub 整理
 - [ ] 交付：Bilibili W5 视频 + 报告

@@ -1,36 +1,31 @@
 """
-main.py - 数字钢琴上电自动运行入口
+main.py - MCPiano 入口 — 低延迟主循环
 
 硬件上下文：
 - 开发板：ESP32-D0WD-V3 + MicroPython v1.23.0
 - 音阶键：GPIO23/22/21/19/18/14/12 → do/re/mi/fa/sol/la/si
 - 功能键：GPIO34(八度+), GPIO35(八度-)
+- LED 直驱：3.3V → LED → 330Ω → 按键 → GND（GPIO 仅做输入）
 - I2S 功放：MAX98357A, BCLK=GPIO16, LRC=GPIO17, DIN=GPIO25
-- LED：GPIO32(绿), GPIO33(红)，低电平点亮
 """
 
-from i2s_audio import I2SAudio
-from buttons import ButtonMatrix
 from piano import Piano
+import time
 
 
 def main():
-    """初始化并运行数字钢琴。"""
-    audio = None
+    piano = Piano()
+    print("MCPiano 就绪！按下琴键（LED 由硬件直驱）")
+
+    # 主循环：5ms 轮询
     try:
-        audio = I2SAudio(volume=0.5)
-        buttons = ButtonMatrix(debounce_ms=20)
-        piano = Piano(audio, buttons, enable_led=True)
-        piano.run()
+        while True:
+            piano.tick()
+            time.sleep_ms(5)
     except KeyboardInterrupt:
-        print("\n用户中断，程序退出")
-    except Exception as e:
-        print(f"\n运行时错误：{e}")
-        raise
-    finally:
-        if audio is not None:
-            audio.stop()
+        piano.close()
+        print("\nMCPiano 已停止")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
