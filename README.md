@@ -328,6 +328,13 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 - [x] 八度 toggle + GPIO32/33 LED 指示：绿灯=高八度，红灯=低八度
 - [x] 录制/回放移植到采样版：GPIO5 短按录制/长按播放，录音回放真实钢琴音色
 - [x] 真实钢琴声音 + 录制/回放 + 八度切换 + LED 声光指示全功能整合
+- [x] **小组项目：Yuanshen 闭环自动化 Agent**（[github.com/WANG5294/Yuanshen](https://github.com/WANG5294/Yuanshen)）
+  - 面向 ESP32 MicroPython 开发的闭环自动化 Agent v1.2.3，自然语言 → 需求规范化 → 接线确认 → 代码编写 → 固件烧录 → 实机测试 → 结果汇报
+  - 核心规模 ~4369 行 Python（入口 + 11 模块包 + MCP 服务器 + A2A 服务）
+  - 关键技术：token 级流式生成器（`llm_create_stream()`）、工具调用零浪费、thinking 块回传
+  - 现代化终端 UI（Rich）：ASCII 启动页/确认页/进度条/轮次卡片/报告模板
+  - 生态能力：A2A 协议远程任务下发、多模型切换（DeepSeek + Kimi）、经验自动沉淀为 Skill
+  - 已发布 npm 包 `yuanshen-esp32-agent`，GitHub main 同步（cbd9bc7）
 - [x] 交付：Bilibili W4 视频（AI 闭环 + 真实钢琴演示）
 
 ### Week 5 (8/3–8/9): 完善与交付 🔵 计划中
