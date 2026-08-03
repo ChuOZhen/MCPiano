@@ -1,6 +1,10 @@
 # MCPiano — AI 原生嵌入式数字钢琴 & 开发工具链
 
+> 📹 **Week 1 视频演示**: [Bilibili - 硬件准备与工具链认识](https://b23.tv/FU8THly)
 > 📹 **Week 2 视频演示**: [Bilibili - MCPiano: KimiCode + MCP 工具链开发 ESP32 数字钢琴](https://www.bilibili.com/video/BV1kCKv6HELY/)
+> 📹 **Week 3 视频演示**: [Bilibili - Yuanshen 智能体架构与 A2A 协议](https://www.bilibili.com/video/BV1Ab3j6mEwA/)
+> 📹 **Week 4 视频演示**: [Bilibili - AI 闭环与真实钢琴演示](https://www.bilibili.com/video/BV1Qo3X6PEoA/)
+> 📹 **Week 5 视频演示**: 待发布
 >
 > 🔧 **AI-Native 工具链**: 本项目通过 MCP (Model Context Protocol) 实现 AI 自动操控 ESP32 硬件
 >
@@ -285,7 +289,7 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 - [x] MicroPython 固件烧录
 - [x] 外设测试：按键、LED、蜂鸣器
 - [x] 工具链方案选型：MCP 服务器
-- [x] 交付：Bilibili W1 视频
+- [x] 交付：Bilibili W1 视频 → https://b23.tv/FU8THly
 
 ### Week 2 (7/13–7/19): 钢琴核心 + 工具链架构 ✅
 - [x] 数字钢琴 v1 固件：9键 + I2S功放 + 八度切换
@@ -303,7 +307,7 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
   - [x] `esp32_error` — 错误解析
 - [x] 工具链闭环测试：`tests/test_toolchain_w3.py` ✅ 通过
 - [x] KimiCode MCP 集成验证：`mcpiano-esp32 · 6 tools connected`
-- [x] 交付：Bilibili W2 视频
+- [x] 交付：Bilibili W2 视频 → https://www.bilibili.com/video/BV1kCKv6HELY/
 
 ### Week 3 (7/20–7/26): LED 声光同步 + 录音回放扩展 ✅
 - [x] 7 音调键 + 2 八度键 LED 改为硬件直驱：3.3V → LED → 330Ω → 按键 → GND
@@ -314,6 +318,7 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
 - [x] 多键支持：同时按住多键，喇叭播放最后按下音
 - [x] 新增 GPIO5 录制/播放键：短按开始/停止录制，长按播放
 - [x] `piano/piano.py` 实现录制/回放状态机，记录音符事件并按时间重放
+- [x] 交付：Bilibili W3 视频 → https://www.bilibili.com/video/BV1Ab3j6mEwA/
 
 ### Week 4 (7/27–8/2): AI 闭环验证 + 真实钢琴声音 ✅
 
@@ -335,7 +340,7 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
   - 现代化终端 UI（Rich）：ASCII 启动页/确认页/进度条/轮次卡片/报告模板
   - 生态能力：A2A 协议远程任务下发、多模型切换（DeepSeek + Kimi）、经验自动沉淀为 Skill
   - 已发布 npm 包 `yuanshen-esp32-agent`，GitHub main 同步（cbd9bc7）
-- [x] 交付：Bilibili W4 视频（AI 闭环 + 真实钢琴演示）
+- [x] 交付：Bilibili W4 视频（AI 闭环 + 真实钢琴演示） → https://www.bilibili.com/video/BV1Qo3X6PEoA/
 
 ### Week 5 (8/3–8/9): 完善与交付 🔵 计划中
 - [ ] 扩展功能（多段录音/循环播放/动画）
