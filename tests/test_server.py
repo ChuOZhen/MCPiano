@@ -6,20 +6,24 @@ loading the server into KimiCode.
 """
 
 import json
+import os
 import subprocess
 import sys
+from pathlib import Path
+
+TOOLCHAIN_DIR = Path(__file__).resolve().parents[1] / "toolchain"
 
 
 def main():
     """Run a quick JSON-RPC exchange with the MCP server."""
-    env = {"PYTHONPATH": "/home/chuzhen/MCPpiano/toolchain"}
+    env = {"PYTHONPATH": str(TOOLCHAIN_DIR)}
     proc = subprocess.Popen(
-        [sys.executable, "/home/chuzhen/MCPpiano/toolchain/mcp_server.py"],
+        [sys.executable, str(TOOLCHAIN_DIR / "mcp_server.py")],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-        env={**dict(__import__("os").environ), **env},
+        env={**os.environ, **env},
     )
 
     init_request = {

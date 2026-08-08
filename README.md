@@ -51,9 +51,9 @@
 ```
 MCPpiano/
 ├── README.md                          # 项目总览
+├── LICENSE                            # MIT 许可证
 ├── .gitignore                         # 排除规则
 ├── .mcp.json                          # MCP 服务器配置
-├── ESP32_GENERIC-20240602-v1.23.0.bin # MicroPython v1.23.0 固件
 │
 ├── samples/                           # 🎵 21个真实钢琴 WAV 采样（A3~G5）
 │
@@ -64,8 +64,8 @@ MCPpiano/
 │   └── i2s_audio.py                   # MAX98357A I2S 采样回放驱动
 │
 ├── toolchain/                         # 🔧 AI-Native MCP 工具链（Python）
+│   ├── README.md                      # 安装与使用说明
 │   ├── mcp_server.py                  # MCP 服务器主入口
-│   ├── test_server.py                 # 服务器测试
 │   └── tools/                         # 工具模块
 │       ├── raw_repl.py                # MicroPython raw REPL 协议
 │       ├── file_transfer.py           # esp32_upload / esp32_download
@@ -73,15 +73,17 @@ MCPpiano/
 │       ├── executor.py                # esp32_execute / esp32_reset
 │       └── error_handler.py           # esp32_error
 │
-├── tests/                             # ✅ 硬件测试脚本
+├── tests/                             # ✅ 测试脚本
 │   ├── test_button.py                 # 基础按键测试
 │   ├── test_buttons_9key.py           # 9键+八度键测试
 │   ├── test_buzzer.py                 # ⚠️ 已废弃（PWM蜂鸣器）
 │   ├── test_led.py                    # LED 测试
 │   ├── test_max98357a.py              # I2S功放测试
 │   ├── test_piano_v1.py               # 钢琴v1集成测试
+│   ├── diag_octave_pins.py            # 八度键 GPIO 诊断脚本
 │   ├── test_toolchain_serial.py       # 串口工具测试
-│   └── test_toolchain_w3.py           # 工具链闭环测试
+│   ├── test_toolchain_w3.py           # 工具链闭环测试
+│   └── test_server.py                 # MCP stdio 握手冒烟测试
 │
 ├── hardware/                          # 🔩 硬件工程文档
 │   ├── bom_analysis.md                # GPIO映射、BOM分析
