@@ -4,7 +4,7 @@
 > 📹 **Week 2 视频演示**: [Bilibili - MCPiano: KimiCode + MCP 工具链开发 ESP32 数字钢琴](https://www.bilibili.com/video/BV1kCKv6HELY/)
 > 📹 **Week 3 视频演示**: [Bilibili - Yuanshen 智能体架构与 A2A 协议](https://www.bilibili.com/video/BV1Ab3j6mEwA/)
 > 📹 **Week 4 视频演示**: [Bilibili - AI 闭环与真实钢琴演示](https://www.bilibili.com/video/BV1Qo3X6PEoA/)
-> 📹 **Week 5 视频演示**: 待发布
+> 📹 **Week 5 视频演示**: 已录制发布，Bilibili 链接待补充
 >
 > 🔧 **AI-Native 工具链**: 本项目通过 MCP (Model Context Protocol) 实现 AI 自动操控 ESP32 硬件
 >
@@ -353,11 +353,11 @@ Week 2 将音频输出从 **PWM 蜂鸣器** 升级为 **MAX98357A I2S 功放 + �
   - 已发布 npm 包 `yuanshen-esp32-agent`，GitHub main 同步（cbd9bc7）
 - [x] 交付：Bilibili W4 视频（AI 闭环 + 真实钢琴演示） → https://www.bilibili.com/video/BV1Qo3X6PEoA/
 
-### Week 5 (8/3–8/9): 完善与交付 🔵 计划中
-- [ ] 扩展功能（多段录音/循环播放/动画）
-- [ ] 技术报告 15-20 页
-- [ ] GitHub 整理
-- [ ] 交付：Bilibili W5 视频 + 报告
+### Week 5 (8/3–8/9): 完善与交付 ✅
+- [x] 扩展功能：八度切换（低/中/高三档）+ 旋律录制/回放（GPIO5 短按录制、长按播放）+ LED 声光直驱
+- [x] 技术报告 15-20 页 → `report/技术报告.pdf`（正文 17 页，A4/宋体小四/1.5 倍行距）
+- [x] GitHub 整理：LICENSE、toolchain/README、images/、tests 测试归位、报告入库
+- [x] 交付：Bilibili W5 视频（链接发布后补充） + 技术报告 PDF（`report/技术报告.pdf`）
 
 ---
 
