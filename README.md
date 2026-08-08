@@ -255,13 +255,8 @@ python toolchain/mcp_server.py
 
 实物接线照片存放于 `images/wiring/`（W5 实拍）。**图片放入 `images/wiring/` 后此处自动显示**：
 
-| 图片 | 内容 |
-| --- | --- |
-| ![按键+LED 接线](images/wiring/wiring_breadboard.jpg) | 面包板按键 + LED 硬件直驱接线（10 键） |
-| ![MAX98357A 接线](images/wiring/wiring_audio.jpg) | MAX98357A 功放接线（SCK/WS/SD + VIN/GAIN/SD_MODE） |
-
-> 📌 上传方式：把 Windows 桌面的 `1.jpg` 复制为 `images/wiring/wiring_breadboard.jpg`（按键接线）
-> 和/或 `wiring_audio.jpg`（音频接线）后 push 即可。
+| 图片 |
+| ![接线图](images/wiring/1.jpg) 
 
 ---
 
