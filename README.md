@@ -97,7 +97,7 @@ MCPpiano/
 │   ├── toolchain_proposal.md          # MCP服务器实现指南
 │   └── toolchain_architecture.md      # 工具链架构文档
 │
-├── images/                            # 演示截图/视频封面
+├── images/                            # 演示截图/视频封面/接线图（wiring/）
 ├── report/                            # 最终技术报告（W5）
 │
 └── 本地文件/                           # 🗂️ 本地私有资料（gitignored）
