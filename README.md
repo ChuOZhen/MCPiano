@@ -4,7 +4,7 @@
 > 📹 **Week 2 视频演示**: [Bilibili - MCPiano: KimiCode + MCP 工具链开发 ESP32 数字钢琴](https://www.bilibili.com/video/BV1kCKv6HELY/)
 > 📹 **Week 3 视频演示**: [Bilibili - Yuanshen 智能体架构与 A2A 协议](https://www.bilibili.com/video/BV1Ab3j6mEwA/)
 > 📹 **Week 4 视频演示**: [Bilibili - AI 闭环与真实钢琴演示](https://www.bilibili.com/video/BV1Qo3X6PEoA/)
-> 📹 **Week 5 视频演示**: 已录制发布，Bilibili 链接待补充
+> 📹 **Week 5 视频演示**: [Bilibili - 最终演示视频](【在此粘贴 W5 视频链接】)
 >
 > 🔧 **AI-Native 工具链**: 本项目通过 MCP (Model Context Protocol) 实现 AI 自动操控 ESP32 硬件
 >
@@ -253,12 +253,15 @@ python toolchain/mcp_server.py
 
 ### 硬件接线图
 
-实物接线照片存放于 `images/wiring/`（W5 实拍）：
+实物接线照片存放于 `images/wiring/`（W5 实拍）。**图片放入 `images/wiring/` 后此处自动显示**：
 
 | 图片 | 内容 |
 | --- | --- |
-| images/wiring/wiring_breadboard.jpg | 面包板按键 + LED 硬件直驱接线（10 键） |
-| images/wiring/wiring_audio.jpg | MAX98357A 功放接线（SCK/WS/SD + VIN/GAIN/SD_MODE） |
+| ![按键+LED 接线](images/wiring/wiring_breadboard.jpg) | 面包板按键 + LED 硬件直驱接线（10 键） |
+| ![MAX98357A 接线](images/wiring/wiring_audio.jpg) | MAX98357A 功放接线（SCK/WS/SD + VIN/GAIN/SD_MODE） |
+
+> 📌 上传方式：把 Windows 桌面的 `1.jpg` 复制为 `images/wiring/wiring_breadboard.jpg`（按键接线）
+> 和/或 `wiring_audio.jpg`（音频接线）后 push 即可。
 
 ---
 
