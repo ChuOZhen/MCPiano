@@ -251,6 +251,15 @@ python toolchain/mcp_server.py
 
 > ⚠️ GPIO6–11 被 SPI Flash 占用，不可用。
 
+### 硬件接线图
+
+实物接线照片存放于 `images/wiring/`（W5 实拍）：
+
+| 图片 | 内容 |
+| --- | --- |
+| images/wiring/wiring_breadboard.jpg | 面包板按键 + LED 硬件直驱接线（10 键） |
+| images/wiring/wiring_audio.jpg | MAX98357A 功放接线（SCK/WS/SD + VIN/GAIN/SD_MODE） |
+
 ---
 
 ## 音频升级说明

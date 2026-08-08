@@ -20,7 +20,7 @@ class I2SAudio:
             mode=I2S.TX, bits=16, format=I2S.MONO,
             rate=sample_rate, ibuf=4000
         )
-        self.sample_dir = 'samples'
+        self.sample_dir = ''  # 采样文件部署在设备根目录
 
         # 音符名 -> (低八度文件, 中音文件, 高八度文件)
         self.note_files = {
