@@ -256,7 +256,7 @@ python toolchain/mcp_server.py
 实物接线照片存放于 `images/wiring/`（W5 实拍）。**图片放入 `images/wiring/` 后此处自动显示**：
 
 | 图片 |
-| ![接线图](images/wiring/1.jpg) 
+| [接线图](images/wiring/1.jpg) 
 
 ---
 
